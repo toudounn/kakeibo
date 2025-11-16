@@ -43,11 +43,6 @@ export default function FormDialog({ onAdd }: Props) {
     setIsEdit(false);
   };
 
-  const handleEditOpen = () => {
-    setOpen(true);
-    setIsEdit(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
     setIsEdit(false);
@@ -89,13 +84,6 @@ export default function FormDialog({ onAdd }: Props) {
           sx={{ width: "100px" }}
         >
           入力
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleEditOpen}
-          sx={{ width: "100px" }}
-        >
-          編集
         </Button>
       </Stack>
 

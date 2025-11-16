@@ -1,10 +1,25 @@
-import { Box, Fab } from "@mui/material";
 import { useState, useEffect } from "react";
-import AllTotal, { KakeiboItem } from "./pages/AllTotal";
+import { KakeiboItem } from "./typs";
 import FormDialog from "./assets/components/Daialog";
+import AllTotal from "./pages/AllTotal";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 function App() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
+const [addSnackbarOpen, setAddSnackbarOpen] = useState(false);
+
+const addItem = (newItem: KakeiboItem) => {
+  const updated = [...items, { ...newItem, id: Date.now() }];
+  setItems(updated);
+  localStorage.setItem("expenses", JSON.stringify(updated));
+  setAddSnackbarOpen(true); // ← 追加完了時にSnackbarを開く
+};
+
+const handleAddSnackbarClose = (_e?: React.SyntheticEvent | Event, reason?: string) => {
+  if (reason === "clickaway") return;
+  setAddSnackbarOpen(false);
+};
 
   // 初期化: localStorageから読み込み
   useEffect(() => {
@@ -14,27 +29,41 @@ function App() {
     }
   }, []);
 
-  // 保存処理
-  const addItem = (newItem: KakeiboItem) => {
-    const updated = [...items, newItem];
-    setItems(updated);
-    localStorage.setItem("expenses", JSON.stringify(updated));
-  };
+  // 更新処理
+  const updateItem = (updatedItem: KakeiboItem) => {
+  const updatedItems = items.map((item) =>
+    item.id === updatedItem.id ? updatedItem : item
+  );
+  setItems(updatedItems);
+  localStorage.setItem("expenses", JSON.stringify(updatedItems));
+};
 
-  const allClear = () => {
-    localStorage.removeItem("expenses");
-    setItems([]);
-  };
+  // 削除処理
+  const deleteItem = (id: number) => {
+  const updatedItems = items.filter((item) => item.id !== id);
+  setItems(updatedItems);
+  localStorage.setItem("expenses", JSON.stringify(updatedItems));
+};
 
   return (
     <>
-      <Box width="100%" textAlign="end">
-        <Fab onClick={allClear} variant="extended" size="small" color="error">
-          内容をすべて削除する
-        </Fab>
-      </Box>
       <FormDialog onAdd={addItem} />
-      <AllTotal items={items} />
+      <AllTotal
+        items={items}
+        onUpdate={updateItem}
+        onDelete={deleteItem}
+      />
+      {/* 追加Snackbar */}
+    <Snackbar
+      open={addSnackbarOpen}
+      autoHideDuration={3000}
+      onClose={handleAddSnackbarClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+    >
+      <Alert severity="success" onClose={() => setAddSnackbarOpen(false)} variant="filled">
+        追加しました
+      </Alert>
+    </Snackbar>
     </>
   );
 }

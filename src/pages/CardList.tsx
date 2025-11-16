@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material"
 
-const Card = () =>{
+const CardList = () =>{
     return(<Typography>カード明細</Typography>)
 }
-export default Card
+export default CardList
