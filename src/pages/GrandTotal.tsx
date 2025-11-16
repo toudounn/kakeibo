@@ -9,14 +9,14 @@ return(
         <TableHead>
             {grandTotalItem.map((item)=>{
                 return(
-                <TableCell>{item.Headers}</TableCell>)
+                <TableCell key={item.Headers}>{item.Headers}</TableCell>)
             })}
             
         </TableHead>
         <TableBody>
             {incomeExpenseItems.map((item)=>{
                 return(
-                    <TableRow>
+                    <TableRow key={item.Headers}>
                         <TableCell>{item.Headers}</TableCell>
                     </TableRow>
                 )})
@@ -26,7 +26,7 @@ return(
             </TableRow>
             {expenditureExpenseItems.map((item)=>{
                 return(
-                    <TableRow>
+                    <TableRow key={item.Headers}>
                         <TableCell>{item.Headers}</TableCell>
                     </TableRow>
                 )
@@ -36,7 +36,7 @@ return(
             </TableRow>
             {livingExpensesItems.map((item)=>{
                 return(
-                    <TableRow>
+                    <TableRow key={item.Headers}>
                         <TableCell>{item.Headers}</TableCell>
                     </TableRow>
                 )

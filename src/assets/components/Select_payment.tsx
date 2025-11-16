@@ -1,34 +1,23 @@
-import * as React from 'react';
-import MenuItem from '@mui/material/MenuItem';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
-export default function SelectPayments() {
-  const [item, setItem] = React.useState('');
+type Props = {
+  value: string;
+  onChange: (event: SelectChangeEvent<string>) => void;
+};
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setItem(event.target.value);
-  };
-
+export default function SelectPayments({ value, onChange }: Props) {
   return (
-    <div>
-      <FormControl sx={{ m: 1, minWidth: 120 }}>
-        <Select
-          value={item}
-          onChange={handleChange}
-          displayEmpty
-          inputProps={{ 'aria-label': '支払方法' }}
-        >
-          <MenuItem value="">
-            <em>選択</em>
-          </MenuItem>
-          <MenuItem value={1}>現金</MenuItem>
-          <MenuItem value={2}>カード</MenuItem>
-          <MenuItem value={3}>ポイント</MenuItem>
-        </Select>
-        <FormHelperText>項目を選択</FormHelperText>
-      </FormControl>
-    </div>
+    <FormControl fullWidth margin="dense">
+      <InputLabel id="payment-select">支払方法</InputLabel>
+      <Select
+        labelId="payment-select"
+        value={value}
+        onChange={onChange}
+      >
+        <MenuItem value="現金">現金</MenuItem>
+        <MenuItem value="クレジットカード">クレジットカード</MenuItem>
+        <MenuItem value="電子マネー">電子マネー</MenuItem>
+      </Select>
+    </FormControl>
   );
 }

@@ -66,33 +66,6 @@ export const livingExpensesItems = [
     {Headers:"特別支出",accessor:"special"},
 ]
 
-export const items = [
-    {
-        id: 1,
-        date: "2024/7/6",
-        item: "食費",
-        payment:"カード",
-        money: "1,000",
-        memo: ""
-    },
-    {
-        id: 2,
-        date: "2024/7/6",
-        item: "雑費",
-        payment:"現金",
-        money: "1,000",
-        memo: ""
-    },
-    {
-        id: 3,
-        date: "2024/7/6",
-        item: "嗜好品",
-        payment:"カード",
-        money: "12,000",
-        memo: ""
-    },
-]
-
 export const iryouHeaders = [
     {
         Headers:"No",Accesser:"id"

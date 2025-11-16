@@ -4,9 +4,9 @@ import App from './App.tsx'
 import './index.css'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import Layout from './assets/components/Layout.tsx'
-import GrandTotal from './pages.tsx/GrandTotal.tsx'
-import Point from './pages.tsx/Point.tsx'
-import Iryou from './pages.tsx/Iryou.tsx'
+import GrandTotal from './pages/GrandTotal.tsx'
+import Point from './pages/Point.tsx'
+import Iryou from './pages/Iryou.tsx'
 import { Card } from '@mui/material'
 
 const router = createHashRouter([
