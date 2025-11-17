@@ -44,4 +44,5 @@
 
 次は、このメモに **「年間合計」や「ランキング表示」」の設計案**も追記していきますか？
 
-https://copilot.microsoft.com/shares/9i7VAxZt1km4cfy2dxu3B
+
+https://copilot.microsoft.com/shares/uBHBc512HWXgFeDfQn83b

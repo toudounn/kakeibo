@@ -8,33 +8,43 @@ import GrandTotal from './pages/GrandTotal.tsx'
 import Point from './pages/Point.tsx'
 import Iryou from './pages/Iryou.tsx'
 import { Card } from '@mui/material'
+import MonthlyCategoryTotal from './pages/MonthlyCategoryTotal.tsx'
+import MonthlyYearlyTotal from './pages/MonthlyYearlyTotal.tsx'
 
 const router = createHashRouter([
   {
-    path:"/",
+    path: "/",
     Component: Layout,
-    children:[
-      {index: true, Component:App},
-      {path:"home",Component:App},
+    children: [
+      { index: true, Component: App },
+      { path: "home", Component: App },
       {
-        path:"grand-total",
+        path: "grand-total",
         Component: GrandTotal,
       },
       {
-        path:"point",
+        path: "monthly-category-total", // ←ここで MonthlyCategoryTotal を登録
+        Component: MonthlyCategoryTotal,
+      },
+      {
+  path:"monthly-yearly-total",
+  Component: MonthlyYearlyTotal,
+},
+      {
+        path: "point",
         Component: Point,
       },
       {
-        path:"iryou",
+        path: "iryou",
         Component: Iryou,
       },
       {
-        path:"card",
+        path: "card",
         Component: Card,
-      }
-    ]
-  }
-])
+      },
+    ],
+  },
+]);
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
