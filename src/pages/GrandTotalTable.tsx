@@ -1,8 +1,10 @@
-import { Typography, Table, TableHead, TableRow, TableCell, TableBody, SxProps } from "@mui/material";
+import { Typography, Table, TableHead, TableBody, SxProps, TableContainer, Paper } from "@mui/material";
+import { StyledTableCell, StyledTableRow } from "../assets/components/StyledTable";
 
-type Item = {
+export type Item = {
   Headers: string;
   monthly: number[]; // 12ヶ月分の金額
+  category:string;
 };
 
 function getTotal(monthly: number[]) {
@@ -34,31 +36,31 @@ export default function GrandTotalTable({
   const renderRows = (items: Item[]) => (
     <>
       {items.map((item,index) => (
-        <TableRow key={item.Headers} sx={{backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#ffffff" }}>
-          <TableCell sx={cellSx}>{item.Headers}</TableCell>
+        <StyledTableRow key={item.Headers} sx={{backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#ffffff" }}>
+          <StyledTableCell sx={cellSx}>{item.Headers}</StyledTableCell>
           {item.monthly.map((val, idx) => (
-            <TableCell key={idx} sx={cellSx}>{val}</TableCell>
+            <StyledTableCell key={idx} sx={cellSx}>{val}</StyledTableCell>
           ))}
-          <TableCell sx={cellSx}>{getTotal(item.monthly)}</TableCell>
-          <TableCell sx={cellSx}>{getAverage(item.monthly)}</TableCell>
-        </TableRow>
+          <StyledTableCell sx={cellSx}>{getTotal(item.monthly)}</StyledTableCell>
+          <StyledTableCell sx={cellSx}>{getAverage(item.monthly)}</StyledTableCell>
+        </StyledTableRow>
       ))}
-      <TableRow>
-        <TableCell sx={cellSx}>合計</TableCell>
+      <StyledTableRow>
+        <StyledTableCell sx={cellSx}>合計</StyledTableCell>
         {Array.from({ length: 12 }).map((_, idx) => (
-          <TableCell key={idx} sx={cellSx}>
+          <StyledTableCell key={idx} sx={cellSx}>
             {items.reduce((sum, it) => sum + it.monthly[idx], 0)}
-          </TableCell>
+          </StyledTableCell>
         ))}
-        <TableCell sx={cellSx}>
+        <StyledTableCell sx={cellSx}>
           {items.reduce((sum, it) => sum + getTotal(it.monthly), 0)}
-        </TableCell>
-        <TableCell sx={cellSx}>
+        </StyledTableCell>
+        <StyledTableCell sx={cellSx}>
           {Math.round(
             items.reduce((sum, it) => sum + getTotal(it.monthly), 0) / 12
           )}
-        </TableCell>
-      </TableRow>
+        </StyledTableCell>
+      </StyledTableRow>
     </>
   );
 
@@ -74,13 +76,20 @@ export default function GrandTotalTable({
   return (
     <>
       <Typography variant="h6" sx={{ mb: 2 }}>月別費目別集計</Typography>
+      <TableContainer
+        component={Paper}
+        sx={{
+          border: "1px solid #ccc",
+          borderRadius: 2, // 角を丸めたい場合
+        }}
+      >
       <Table>
         <TableHead>
-          <TableRow sx={{ backgroundColor: "#e0e0e0" }}>
+          <StyledTableRow sx={{ backgroundColor: "#e0e0e0" }}>
             {grandTotalItem.map((col) => (
-              <TableCell key={col.Headers} sx={cellSx}>{col.Headers}</TableCell>
+              <StyledTableCell key={col.Headers} sx={cellSx}>{col.Headers}</StyledTableCell>
             ))}
-          </TableRow>
+          </StyledTableRow>
         </TableHead>
         <TableBody>
           {renderRows(incomeExpenseItems)}
@@ -88,14 +97,16 @@ export default function GrandTotalTable({
           {renderRows(livingExpensesItems)}
 
           {/* 年合計（収入−支出） */}
-          <TableRow>
-            <TableCell sx={cellSx} ><strong>年合計（収入−支出）</strong></TableCell>
-            <TableCell colSpan={13} sx={{ color: totalColor, ...cellSx }}>
-              <strong>{yearlyGrandTotal}</strong>
-            </TableCell>
-          </TableRow>
+          <StyledTableRow>
+            <StyledTableCell sx={cellSx} ><strong>年合計（収入−支出）</strong></StyledTableCell>
+            <StyledTableCell colSpan={grandTotalItem.length - 1} sx={{ color: totalColor, ...cellSx }}>
+            <strong>{yearlyGrandTotal}</strong>
+          </StyledTableCell>
+
+          </StyledTableRow>
         </TableBody>
       </Table>
+      </TableContainer>
     </>
   );
 }

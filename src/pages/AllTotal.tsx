@@ -11,6 +11,7 @@ import {
   ArcElement,
   PointElement,
   LineElement,
+  Filler,
 } from "chart.js";
 import { useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
@@ -25,7 +26,8 @@ ChartJS.register(
   Legend,
   ArcElement,
   PointElement,
-  LineElement
+  LineElement,
+  Filler
 );
 
 // 共通オプション（レスポンシブ＆縦横比固定解除）

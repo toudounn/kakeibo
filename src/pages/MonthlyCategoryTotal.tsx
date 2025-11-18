@@ -1,65 +1,64 @@
+import { Box, Table, TableBody, TableHead } from "@mui/material";
+import { StyledTableCell, StyledTableRow } from "../assets/components/StyledTable";
+import { Item } from "./GrandTotalTable";
 import React from "react";
-import { Box, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 
-export type KakeiboItem = {
-  id: number;
-  date: string;   // "YYYY-MM-DD" 前提
-  item: string;
-  payment: string;
-  money: number;
-  memo?: string;
-};
+function getMonthlyCategoryTotals(data: Item[]) {
+  const totals: { [month: number]: { [category: string]: number } } = {};
 
-// 各月 × 各カテゴリの合計を計算
-function getMonthlyCategoryTotals(items: KakeiboItem[]) {
-  const totals: { [month: string]: { [category: string]: number } } = {};
-
-  items.forEach((exp) => {
-    const [y, m] = exp.date.split("-");
-    const monthKey = `${y}-${m}`;
-    if (!totals[monthKey]) totals[monthKey] = {};
-    totals[monthKey][exp.item] = (totals[monthKey][exp.item] || 0) + exp.money;
+  data.forEach((exp) => {
+    if (!exp.monthly) return;
+    exp.monthly.forEach((val, idx) => {
+      if (!totals[idx + 1]) totals[idx + 1] = {}; // 1月〜12月にしたいなら idx+1
+      totals[idx + 1][exp.category] = (totals[idx + 1][exp.category] || 0) + val;
+    });
   });
 
   return totals;
 }
 
-export default function MonthlyCategoryTotal() {
-  const [items, setItems] = React.useState<KakeiboItem[]>([]);
+export default function MonthlyCategoryTotal({ data = [] }: { data?: Item[] }) {
+  const [items, setItems] = React.useState<Item[]>(data);
 
-  // 初回レンダリング時に localStorage から読み込む
   React.useEffect(() => {
-    const saved = localStorage.getItem("items");
-    if (saved) {
-      setItems(JSON.parse(saved));
+    if (!data || data.length === 0) {
+      const saved = localStorage.getItem("items");
+      if (saved) {
+        try {
+          const parsed: Item[] = JSON.parse(saved);
+          setItems(parsed);
+        } catch {
+          console.error("localStorage のデータ形式が不正です");
+        }
+      }
     }
-  }, []);
+  }, [data]);
 
   const totals = getMonthlyCategoryTotals(items);
-  const months = Object.keys(totals).sort();
-  const categories = Array.from(new Set(items.map((exp) => exp.item)));
+  const months = Object.keys(totals).map(Number).sort((a, b) => a - b);
+  const categories = Array.from(new Set(items.map((exp) => exp.category)));
 
   return (
     <Box maxWidth={"1200px"} sx={{ mx: "auto" }}>
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell>月</TableCell>
+          <StyledTableRow>
+            <StyledTableCell>月</StyledTableCell>
             {categories.map((cat) => (
-              <TableCell key={cat}>{cat}</TableCell>
+              <StyledTableCell key={cat}>{cat}</StyledTableCell>
             ))}
-          </TableRow>
+          </StyledTableRow>
         </TableHead>
         <TableBody>
           {months.map((month) => (
-            <TableRow key={month}>
-              <TableCell>{month}</TableCell>
+            <StyledTableRow key={month}>
+              <StyledTableCell>{month}月</StyledTableCell>
               {categories.map((cat) => (
-                <TableCell key={cat}>
-                  {totals[month][cat] || 0}
-                </TableCell>
+                <StyledTableCell key={cat}>
+                  {totals[month]?.[cat] ?? 0}
+                </StyledTableCell>
               ))}
-            </TableRow>
+            </StyledTableRow>
           ))}
         </TableBody>
       </Table>
