@@ -1,27 +1,12 @@
 import { useState, useEffect } from "react";
-import { KakeiboItem } from "./typs";
-import FormDialog from "./assets/components/Daialog";
+import FormDialog from "./assets/components/FormDialog";
 import AllTotal from "./pages/AllTotal";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { KakeiboItem } from "./typs";
 
-function App() {
+export default function App() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
-const [addSnackbarOpen, setAddSnackbarOpen] = useState(false);
 
-const addItem = (newItem: KakeiboItem) => {
-  const updated = [...items, { ...newItem, id: Date.now() }];
-  setItems(updated);
-  localStorage.setItem("expenses", JSON.stringify(updated));
-  setAddSnackbarOpen(true); // ← 追加完了時にSnackbarを開く
-};
-
-const handleAddSnackbarClose = (_e?: React.SyntheticEvent | Event, reason?: string) => {
-  if (reason === "clickaway") return;
-  setAddSnackbarOpen(false);
-};
-
-  // 初期化: localStorageから読み込み
+  // 初期読み込み（localStorageから）
   useEffect(() => {
     const saved = localStorage.getItem("expenses");
     if (saved) {
@@ -29,43 +14,39 @@ const handleAddSnackbarClose = (_e?: React.SyntheticEvent | Event, reason?: stri
     }
   }, []);
 
+  // 追加処理
+  const addItem = (newItem: KakeiboItem) => {
+    const updated = [...items, newItem];
+    setItems(updated);
+    localStorage.setItem("expenses", JSON.stringify(updated));
+  };
+
   // 更新処理
   const updateItem = (updatedItem: KakeiboItem) => {
-  const updatedItems = items.map((item) =>
-    item.id === updatedItem.id ? updatedItem : item
-  );
-  setItems(updatedItems);
-  localStorage.setItem("expenses", JSON.stringify(updatedItems));
-};
+    const updated = items.map((item) =>
+      item.id === updatedItem.id ? updatedItem : item
+    );
+    setItems(updated);
+    localStorage.setItem("expenses", JSON.stringify(updated));
+  };
 
   // 削除処理
   const deleteItem = (id: number) => {
-  const updatedItems = items.filter((item) => item.id !== id);
-  setItems(updatedItems);
-  localStorage.setItem("expenses", JSON.stringify(updatedItems));
-};
+    const updated = items.filter((item) => item.id !== id);
+    setItems(updated);
+    localStorage.setItem("expenses", JSON.stringify(updated));
+  };
 
   return (
-    <>
-      <FormDialog onAdd={addItem} />
-      <AllTotal
-        items={items}
-        onUpdate={updateItem}
-        onDelete={deleteItem}
-      />
-      {/* 追加Snackbar */}
-    <Snackbar
-      open={addSnackbarOpen}
-      autoHideDuration={3000}
-      onClose={handleAddSnackbarClose}
-      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-    >
-      <Alert severity="success" onClose={() => setAddSnackbarOpen(false)} variant="filled">
-        追加しました
-      </Alert>
-    </Snackbar>
-    </>
+    <div style={{ padding: "20px" }}>
+      <h1>家計簿アプリ</h1>
+
+      {/* 入力フォームダイアログ */}
+      <FormDialog onAdd={addItem} onUpdate={updateItem} onDelete={deleteItem} />
+
+
+      {/* 一覧表示 + 編集・削除 */}
+      <AllTotal items={items} onUpdate={updateItem} onDelete={deleteItem} />
+    </div>
   );
 }
-
-export default App;

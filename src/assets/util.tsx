@@ -7,33 +7,6 @@ export const headerItems = [
     {Headers:"備考" , accessor:"memo"},
 ]
 
-export type headerItems = {
-    id: number;
-    date: Date;
-    item: string;
-    payment: string;
-    money: string;
-    memo: string;
-}
-
-// export const grandTotalItem = [
-//     {Headers:"項目",accessor:"item"},
-//     {Headers:"１月",accessor:"jan"},
-//     {Headers:"２月",accessor:"feb"},
-//     {Headers:"３月",accessor:"mar"},
-//     {Headers:"４月",accessor:"apr"},
-//     {Headers:"５月",accessor:"may"},
-//     {Headers:"６月",accessor:"jun"},
-//     {Headers:"７月",accessor:"jul"},
-//     {Headers:"８月",accessor:"aug"},
-//     {Headers:"９月",accessor:"sep"},
-//     {Headers:"１０月",accessor:"oct"},
-//     {Headers:"１１月",accessor:"nov"},
-//     {Headers:"１２月",accessor:"dec"},
-//     {Headers:"合計",accessor:"total"},
-//     {Headers:"平均",accessor:"average"},
-// ]
-
 export const incomeExpenseItems = [
     {Headers:"奈緒子",accessor:""},
     {Headers:"佑弥",accessor:""},

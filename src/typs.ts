@@ -1,10 +1,11 @@
-// src/types.ts
+// 家計簿アイテム型
 export type KakeiboItem = {
   id: number;
-  date: string;   // "YYYY-MM-DD"
+  date: string;
   item: string;
   payment: string;
   money: number;
+  category: "収入" | "支出"; 
   memo?: string;
 };
 

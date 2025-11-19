@@ -1,22 +1,24 @@
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 type Props = {
   value: string;
-  onChange: (event: SelectChangeEvent<string>) => void;
+  onChange: (e: any) => void;
 };
 
 export default function SelectLabels({ value, onChange }: Props) {
   return (
     <FormControl fullWidth margin="dense">
-      <InputLabel id="label-select">項目</InputLabel>
+      <InputLabel id="item-label">費目</InputLabel>
       <Select
-        labelId="label-select"
+        labelId="item-label"
         value={value}
         onChange={onChange}
       >
         <MenuItem value="食費">食費</MenuItem>
         <MenuItem value="交通費">交通費</MenuItem>
-        <MenuItem value="娯楽">娯楽</MenuItem>
+        <MenuItem value="家賃">家賃</MenuItem>
+        <MenuItem value="光熱費">光熱費</MenuItem>
+        <MenuItem value="その他">その他</MenuItem>
       </Select>
     </FormControl>
   );

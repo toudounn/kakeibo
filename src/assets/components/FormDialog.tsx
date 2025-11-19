@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import {
   Button,
   TextField,
@@ -8,25 +8,24 @@ import {
   DialogTitle,
   Box,
   Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import SelectLabels from "./Select";
+import SelectLabels from "./SelectLabels";
 import SelectPayments from "./Select_payment";
+import { KakeiboItem } from "../../typs";
 
-// 家計簿アイテム型
-export type KakeiboItem = {
-  id: number;
-  date: string;
-  item: string;
-  payment: string;
-  money: number;
-  memo?: string;
-};
 
 type Props = {
   onAdd: (item: KakeiboItem) => void;
+  onUpdate: (item: KakeiboItem) => void;   // ← 追加
+  onDelete: (id: number) => void;          // ← 削除用も追加すると便利
 };
 
-export default function FormDialog({ onAdd }: Props) {
+
+export default function FormDialog({ onAdd,onDelete }: Props) {
   // ダイアログの開閉
   const [open, setOpen] = useState(false);
   // 編集モードかどうか
@@ -37,43 +36,54 @@ export default function FormDialog({ onAdd }: Props) {
   const [item, setItem] = useState("");
   const [payment, setPayment] = useState("");
   const [date, setDate] = useState("");
+  // 編集対象の id を保持する state
+const [editingId, setEditingId] = useState<number | null>(null);
+  // state に memo を追加
+const [memo, setMemo] = useState("");
+const [category, setCategory] = useState<"収入" | "支出">("支出");
 
-  const handleInputOpen = () => {
-    setOpen(true);
-    setIsEdit(false);
+// 入力ダイアログを開く
+const handleInputOpen = () => {
+  setOpen(true);
+  setIsEdit(false);
+};
+
+// 閉じる
+const handleClose = () => {
+  setOpen(false);
+  setIsEdit(false);
+};
+
+const handleRegister = () => {
+  const newItem: KakeiboItem = {
+    id: Date.now(),
+    date,
+    item,
+    payment,
+    money: Number(money),
+    category, // ← 収入 or 支出
+    memo: item === "その他" ? memo : "",
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    setIsEdit(false);
-  };
+  onAdd(newItem);
+  // 入力欄リセット
+  setMoney("");
+  setItem("");
+  setPayment("");
+  setDate("");
+  setCategory("支出");
+  setMemo("");
+  handleClose();
+};
 
-  // 登録処理
-  const handleRegister = () => {
-    const newItem: KakeiboItem = {
-      id: Date.now(),
-      date,
-      item,
-      payment,
-      money: Number(money),
-      memo: "",
-    };
-
-    onAdd(newItem); // 親(App)に渡して一覧更新
-
-    // 入力欄リセット
-    setMoney("");
-    setItem("");
-    setPayment("");
-    setDate("");
-    handleClose();
-  };
-
-  // 削除処理（編集モード用）
-  const handleRemove = () => {
-    localStorage.removeItem("expenses");
-    handleClose();
-  };
+// 削除処理（編集モード用）
+const handleRemove = () => {
+  if (editingId !== null) {
+    onDelete(editingId); // 親(App)に削除を依頼
+    setEditingId(null);
+  }
+  handleClose();
+};
 
   return (
     <React.Fragment>
@@ -91,6 +101,18 @@ export default function FormDialog({ onAdd }: Props) {
         <Box width="500px">
           <DialogTitle>{isEdit ? "編集" : "入力"}</DialogTitle>
           <DialogContent>
+            <FormControl fullWidth margin="dense">
+            <InputLabel id="category-label">カテゴリ</InputLabel>
+            <Select
+              labelId="category-label"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as "収入" | "支出")}
+            >
+              <MenuItem value="収入">収入</MenuItem>
+              <MenuItem value="支出">支出</MenuItem>
+            </Select>
+          </FormControl>
+
             <TextField
               type="date"
               value={date}
@@ -103,6 +125,22 @@ export default function FormDialog({ onAdd }: Props) {
               value={item}
               onChange={(e) => setItem(e.target.value)}
             />
+
+            {/* 「その他」を選んだときだけ備考欄を表示 */}
+            {item === "その他" && (
+              <TextField
+                margin="dense"
+                id="memo"
+                name="memo"
+                label="備考"
+                type="text"
+                fullWidth
+                variant="standard"
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+              />
+            )}
+
 
             <SelectPayments
               value={payment}
@@ -137,7 +175,7 @@ export default function FormDialog({ onAdd }: Props) {
               キャンセル
             </Button>
             <Button onClick={handleRegister} variant="contained">
-              登録
+              {isEdit ? "更新" : "登録"}
             </Button>
           </DialogActions>
         </Box>
