@@ -4,19 +4,16 @@ import App from './App.tsx'
 import './index.css'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import Layout from './assets/components/Layout.tsx'
-import GrandTotal from './pages/GrandTotal.tsx'
+import Category from './pages/Category.tsx'
 
 const router = createHashRouter([
   {
     path: "/",
-    Component: Layout,
+    element: <Layout />,
     children: [
-      { index: true, Component: App },
-      { path: "home", Component: App },
-      {
-        path: "grand-total",
-        Component: GrandTotal,
-      },
+      { index: true, element: <App /> },
+      { path: "home", element: <App /> },
+      { path: "category", element: <Category /> },
     ],
   },
 ]);

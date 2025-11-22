@@ -1,3 +1,25 @@
+export const calendars =[
+    { Headers: "項目" },
+    { Headers: "1月" },
+    { Headers: "2月" },
+    { Headers: "3月" },
+    { Headers: "4月" },
+    { Headers: "5月" },
+    { Headers: "6月" },
+    { Headers: "7月" },
+    { Headers: "8月" },
+    { Headers: "9月" },
+    { Headers: "10月" },
+    { Headers: "11月" },
+    { Headers: "12月" },
+    { Headers: "合計" },
+    { Headers: "平均" },
+]
+
+export type calenders = {
+    Headers:string;
+}
+
 export const headerItems = [
     {Headers:"No" , accessor:"id"},
     {Headers:"年月日" , accessor:"date"},

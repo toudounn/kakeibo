@@ -1,0 +1,8 @@
+.MuiTableCell-root {
+  text-align: center;
+}
+
+td[class*="Mui"],
+th[class*="Mui"]{
+  text-align: center;
+}
