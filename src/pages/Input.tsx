@@ -7,8 +7,9 @@ import {
   Stack
 } from "@mui/material";
 import { KakeiboItem } from "../typs";
-import { tableSx } from "./Category";
+import { tableSx, tebleRowSx } from "./Category";
 import { expenditureExpenseItems, headers, incomeExpenseItems, livingExpensesItems } from "../assets/util";
+import PaymentForm from "../assets/components/PaymentForm";
 
 export default function Input() {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ export default function Input() {
   const [month, setMonth] = useState<number>(1);
   const [amount, setAmount] = useState(0);
   const [payment, setPayment] = useState("");
+  const [paymentType, setPaymentType] = useState("");
 
   useEffect(() => {
     const stored = localStorage.getItem("expenses");
@@ -51,6 +53,7 @@ export default function Input() {
       name,
       amount: Number(amount),
       payment,
+      paymentType,
     };
 
     let updated: KakeiboItem[];
@@ -72,6 +75,7 @@ export default function Input() {
     setName("");
     setAmount(0);
     setPayment("");
+    setPaymentType("");
     setDate("");
   };
 
@@ -132,19 +136,23 @@ const rowsWithTotal = items.map((row) => {
 });
 
   return (
-    <Box>
+    <Box m={2}>
+      <Box m={2}>
       <Button variant="contained" onClick={() => {
-        setSelectedRow(null); // 新規入力モード
+        setSelectedRow(null);
         setOpen(true);
       }}>
         新規入力
       </Button>
+      </Box>
       <Table sx={tableSx}>
         <TableHead>
-          <TableRow>
-            {headers.map((h) => (
-              <TableCell key={h.accessor}>{h.Headers}</TableCell>
-            ))}
+          <TableRow sx={tebleRowSx}>
+            {headers
+              .filter((h) => h.Headers !== "平均")
+              .map((h) => (
+                <TableCell key={h.accessor}>{h.Headers}</TableCell>
+              ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -194,6 +202,17 @@ const rowsWithTotal = items.map((row) => {
               ))}
             </Select>
           </FormControl>
+          {/* 収入以外のときだけ支払方法を表示 */}
+          {category !== "収入" && (
+            <PaymentForm
+              payment={payment}
+              paymentType={paymentType}
+              onChange={({ payment, paymentType }: any) => {
+                setPayment(payment);
+                setPaymentType(paymentType);
+              }}
+            />
+          )}
           <TextField
             margin="dense"
             label="日付"

@@ -5,6 +5,8 @@ import './index.css'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import Layout from './assets/components/Layout.tsx'
 import Category from './pages/Category.tsx'
+import SummaryPage from './pages/SummaryPage.tsx'
+import Settings from './assets/components/Settings.tsx'
 
 const router = createHashRouter([
   {
@@ -14,10 +16,11 @@ const router = createHashRouter([
       { index: true, element: <App /> },
       { path: "home", element: <App /> },
       { path: "category", element: <Category /> },
+      { path: "summary", element: <SummaryPage /> },
+      { path: "settings", element: <Settings /> },
     ],
   },
 ]);
-
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

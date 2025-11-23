@@ -1,8 +1,5 @@
-.MuiTableCell-root {
-  text-align: center;
-}
-
 td[class*="Mui"],
-th[class*="Mui"]{
+th[class*="Mui"],
+table[class*="Mui"]{
   text-align: center;
 }

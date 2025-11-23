@@ -6,11 +6,6 @@ export type KakeiboItem = {
   category: "収入" | "支出" | "生活費"; // カテゴリを限定
   name: string;        // 項目名 (例: 食費, 電気代)
   amount: number;      // 金額
-  payment?: string;    // 支払い方法 (現金, カードなど)
-};
-
-export type AllTotalProps = {
-  items: KakeiboItem[];
-  onUpdate: (updatedItem: KakeiboItem) => void;
-  onDelete: (id: number) => void;
+  payment: string;       // 現金 / カード / ポイント
+  paymentType?: string;  // カード・ポイントの種類
 };

@@ -1,24 +1,48 @@
 import { useState, useEffect } from "react";
-import { Table, TableHead, TableRow, TableCell, TableBody, Typography, SxProps } from "@mui/material";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Typography,
+  SxProps,
+  Box,
+} from "@mui/material";
 import { KakeiboItem } from "../typs";
-import { incomeExpenseItems, expenditureExpenseItems, livingExpensesItems } from "../assets/util";
+import {
+  incomeExpenseItems,
+  expenditureExpenseItems,
+  livingExpensesItems,
+} from "../assets/util";
 import BalanceCell from "../assets/components/BalanceCell";
 
 export const totalLineSx: SxProps = {
- fontWeight: "bold", backgroundColor: "#e0f7fa" 
-}
+  fontWeight: "bold",
+  backgroundColor: "#e0f7fa",
+};
 
-export const tebleRowSx:SxProps = {
-  fontWeight: "bold", backgroundColor: "#e0e7faff" 
-}
+export const tebleRowSx: SxProps = {
+  fontWeight: "bold",
+  backgroundColor: "#e0e7faff",
+};
 
-export const tableSx:SxProps = {
-        border: "1px solid black",
-        borderCollapse: "collapse",
-        "& td, & th": {
-          border: "1px solid black",
-        },
-      }
+export const tableSx: SxProps = {
+  border: "1px solid black",
+  borderCollapse: "collapse",
+  tableLayout: "fixed", // 横幅を固定レイアウトに
+  width: "100%", // 全体幅を固定
+  "& td, & th": {
+    border: "1px solid black",
+    padding: "0px 4px", // ほぼ余白ゼロ
+    whiteSpace: "nowrap", // 折り返し防止
+    overflow: "hidden", // はみ出しを隠す
+    textOverflow: "ellipsis", // 長い文字は「…」で省略
+  },
+  "& tr": {
+    height: "20px", // Excel風に詰める
+  },
+};
 
 export default function Category() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
@@ -60,7 +84,9 @@ export default function Category() {
   const livingRows = makeRows(livingExpensesItems);
 
   // 各セクションの月別合計
-  const sectionTotals = (rows: { Headers: string; monthly: number[]; sum: number }[]) => {
+  const sectionTotals = (
+    rows: { Headers: string; monthly: number[]; sum: number }[]
+  ) => {
     const monthly = Array(12).fill(0);
     rows.forEach((row) => {
       row.monthly.forEach((val, i) => {
@@ -76,13 +102,21 @@ export default function Category() {
   const livingTotal = sectionTotals(livingRows);
 
   // 残高 = 収入合計 − 支出合計
-  const balanceMonthly = incomeTotal.monthly.map((val, i) => val - expenditureTotal.monthly[i]);
+  const balanceMonthly = incomeTotal.monthly.map(
+    (val, i) => val - expenditureTotal.monthly[i]
+  );
   const balanceSum = incomeTotal.sum - expenditureTotal.sum;
 
-  // 共通テーブル描画関数
-  const renderTable = (title: string, rows: { Headers: string; monthly: number[]; sum: number }[], total?: { monthly: number[]; sum: number }) => (
+  // 共通テーブル描画関数（平均列を追加）
+  const renderTable = (
+    title: string,
+    rows: { Headers: string; monthly: number[]; sum: number }[],
+    total?: { monthly: number[]; sum: number }
+  ) => (
     <>
-      <Typography variant="h6" sx={{ mt: 3 }}>{title}</Typography>
+      <Typography variant="h6" sx={{ mt: 3 }}>
+        {title}
+      </Typography>
       <Table sx={tableSx}>
         <TableHead>
           <TableRow sx={tebleRowSx}>
@@ -91,6 +125,7 @@ export default function Category() {
               <TableCell key={i}>{i + 1}月</TableCell>
             ))}
             <TableCell>合計</TableCell>
+            <TableCell>平均</TableCell> {/* 平均列を追加 */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -101,6 +136,7 @@ export default function Category() {
                 <TableCell key={i}>{val}</TableCell>
               ))}
               <TableCell>{row.sum}</TableCell>
+              <TableCell>{Math.round(row.sum / 12)}</TableCell> {/* 平均値 */}
             </TableRow>
           ))}
           {total && (
@@ -110,6 +146,7 @@ export default function Category() {
                 <TableCell key={i}>{val}</TableCell>
               ))}
               <TableCell>{total.sum}</TableCell>
+              <TableCell>{Math.round(total.sum / 12)}</TableCell> {/* 合計の平均 */}
             </TableRow>
           )}
         </TableBody>
@@ -118,20 +155,24 @@ export default function Category() {
   );
 
   return (
-    <div>
+    <Box m={2}>
+      <Typography variant="h5">カテゴリ別一覧</Typography>
       {renderTable("収入", incomeRows, incomeTotal)}
       {renderTable("支出", expenditureRows, expenditureTotal)}
       {renderTable("生活費", livingRows, livingTotal)}
 
-      <Typography variant="h6" sx={{ mt: 3 }}>残高</Typography>
-      <Table>
+      <Typography variant="h6" sx={{ mt: 3 }}>
+        残高
+      </Typography>
+      <Table sx={tableSx}>
         <TableHead>
-          <TableRow>
+          <TableRow sx={tebleRowSx}>
             <TableCell>項目</TableCell>
             {Array.from({ length: 12 }, (_, i) => (
               <TableCell key={i}>{i + 1}月</TableCell>
             ))}
             <TableCell>合計</TableCell>
+            <TableCell>平均</TableCell> {/* 平均列を追加 */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -141,9 +182,10 @@ export default function Category() {
               <BalanceCell key={i} value={val} />
             ))}
             <BalanceCell value={balanceSum} />
+            <BalanceCell value={Math.round(balanceSum / balanceMonthly.length)} /> {/* 整数に丸める */}
           </TableRow>
         </TableBody>
       </Table>
-    </div>
+    </Box>
   );
 }
