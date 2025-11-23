@@ -15,9 +15,12 @@ export default function Layout() {
           <Button color="inherit" component={Link} to="/summary">
             その他一覧
           </Button>
+          <Button color="inherit" component={Link} to="/graph-page">
+            グラフ
+          </Button>
           <Button color="inherit" component={Link} to="/settings">
             設定
-          </Button> {/* ← ここを追加 */}
+          </Button>
         </Toolbar>
       </AppBar>
       <Outlet />

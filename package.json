@@ -20,6 +20,7 @@
     "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
+    "@types/chart.js": "^4.0.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",

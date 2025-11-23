@@ -15,6 +15,9 @@ export default function Input() {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<KakeiboItem[]>([]);
   const [selectedRow, setSelectedRow] = useState<KakeiboItem | null>(null);
+  // ソート用
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
  // 削除確認ダイアログ用
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -112,19 +115,26 @@ const handleDeleteConfirm = () => {
   setPayment("");
   setDate("");
 };
+
 // 確認ダイアログで「キャンセル」を押したとき
 const handleDeleteCancel = () => {
   setConfirmOpen(false);
 };
 
-// 累積合計を計算しながら表示用データを作成
+// 並べ替え処理
+const sortedRows = [...items].sort((a, b) => {
+  const dateA = new Date(a.date).getTime();
+  const dateB = new Date(b.date).getTime();
+  return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+});
+
+// 並べ替え後に累積合計を計算しながら表示用データを作成
 let runningTotal = 0;
-const rowsWithTotal = items.map((row) => {
+const rowsWithTotal = sortedRows.map((row) => {
   const expenditure =
     row.category === "支出" || row.category === "生活費" ? row.amount : 0;
   const income = row.category === "収入" ? row.amount : 0;
 
-  // 累積合計を更新
   runningTotal += income - expenditure;
 
   return {
@@ -151,7 +161,22 @@ const rowsWithTotal = items.map((row) => {
             {headers
               .filter((h) => h.Headers !== "平均")
               .map((h) => (
-                <TableCell key={h.accessor}>{h.Headers}</TableCell>
+                <TableCell key={h.accessor} sx={{ verticalAlign: "middle" }} >
+                  {h.Headers === "年月日" ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems:"center"}}>
+                      <span>{h.Headers}</span>
+                      <Button
+                        size="small"
+                        onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                        sx={{ minWidth: 0, px: 1 }}
+                      >
+                        {sortOrder === "asc" ? "↓" : "↑"}
+                      </Button>
+                    </Box>
+                  ) : (
+                    h.Headers
+                  )}
+                </TableCell>
               ))}
           </TableRow>
         </TableHead>
@@ -173,6 +198,7 @@ const rowsWithTotal = items.map((row) => {
               </TableCell>
             </TableRow>
           ))}
+
         </TableBody>
       </Table>
       {/* 入力フォーム */}
