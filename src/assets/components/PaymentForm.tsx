@@ -1,15 +1,36 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TextField, MenuItem, Box } from "@mui/material";
+import { getCardTypes, getPointTypes, saveCardTypes, savePointTypes } from "../../db/indexedDB";
 
-export default function PaymentForm({ payment, paymentType, onChange }:any) {
+export default function PaymentForm({ payment, paymentType, onChange }: any) {
   // 支払方法の選択肢
   const paymentMethods = ["現金", "カード", "ポイント"];
 
-  // カード・ポイントの種類は localStorage から読み込むようにすると拡張可能
-  const storedCards = localStorage.getItem("cardTypes");
-  const storedPoints = localStorage.getItem("pointTypes");
-  const cardTypes = storedCards ? JSON.parse(storedCards) : ["Visa", "MasterCard", "JCB"];
-  const pointTypes = storedPoints ? JSON.parse(storedPoints) : ["楽天ポイント", "Tポイント", "dポイント"];
+  // IndexedDBから読み込むカード・ポイント種類
+  const [cardTypes, setCardTypes] = useState<string[]>([]);
+  const [pointTypes, setPointTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let cards = await getCardTypes();
+      let points = await getPointTypes();
+
+      // 初期値が空ならデフォルトを設定
+      if (cards.length === 0) {
+        cards = ["Visa", "MasterCard", "JCB"];
+        await saveCardTypes(cards);
+      }
+      if (points.length === 0) {
+        points = ["楽天ポイント", "Tポイント", "dポイント"];
+        await savePointTypes(points);
+      }
+
+      setCardTypes(cards);
+      setPointTypes(points);
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     onChange({ payment, paymentType });
@@ -39,7 +60,7 @@ export default function PaymentForm({ payment, paymentType, onChange }:any) {
           value={paymentType}
           onChange={(e) => onChange({ payment, paymentType: e.target.value })}
         >
-          {(payment === "カード" ? cardTypes : pointTypes).map((type:any) => (
+          {(payment === "カード" ? cardTypes : pointTypes).map((type: string) => (
             <MenuItem key={type} value={type}>
               {type}
             </MenuItem>

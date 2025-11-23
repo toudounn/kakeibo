@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
-import { Box, TextField, Button, List, ListItem, Typography, Stack, SxProps } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  getCardTypes,
+  getPointTypes,
+  saveCardTypes,
+  savePointTypes,
+  deleteCardType,
+  deletePointType,
+} from "../../db/indexedDB";
+import { Box, Button, Stack, SxProps, TextField, Typography } from "@mui/material";
 
-export const btnSx:SxProps ={
-    width:"50px",
-    height:"30px"
-}
+const btnSx: SxProps = {mx:2,my:1}
 
 export default function Settings() {
   const [cardTypes, setCardTypes] = useState<string[]>([]);
@@ -14,111 +19,98 @@ export default function Settings() {
 
   // 初期読み込み
   useEffect(() => {
-    const storedCards = localStorage.getItem("cardTypes");
-    const storedPoints = localStorage.getItem("pointTypes");
-    if (storedCards) setCardTypes(JSON.parse(storedCards));
-    if (storedPoints) setPointTypes(JSON.parse(storedPoints));
+    const fetchData = async () => {
+      setCardTypes(await getCardTypes());
+      setPointTypes(await getPointTypes());
+    };
+    fetchData();
   }, []);
 
-  // 保存関数
-  const saveCardTypes = (types: string[]) => {
-    setCardTypes(types);
-    localStorage.setItem("cardTypes", JSON.stringify(types));
-  };
-  const savePointTypes = (types: string[]) => {
-    setPointTypes(types);
-    localStorage.setItem("pointTypes", JSON.stringify(types));
+  // 追加
+  const handleAddCard = async () => {
+    const updated = [...cardTypes, newCard];
+    setCardTypes(updated);
+    await saveCardTypes(updated);
+    setNewCard("");
   };
 
+  const handleAddPoint = async () => {
+    const updated = [...pointTypes, newPoint];
+    setPointTypes(updated);
+    await savePointTypes(updated);
+    setNewPoint("");
+  };
+
+  // 削除
+  const handleDeleteCard = async (type: string) => {
+  const updated = await deleteCardType(type);
+  setCardTypes(updated); // ← 状態を更新
+};
+
+
+  const handleDeletePoint = async (type: string) => {
+  const updated = await deletePointType(type);
+  setPointTypes(updated);
+};
+
+
   return (
-    <Box p={2}>
-      <Stack direction="row" spacing={5}>
-        <Stack direction="column">
-            <Typography variant="h6">カード種類設定</Typography>
-            <Box display="flex" gap={1} mt={1} alignItems="center">
-                <TextField
-                  label="カード種類"
-                  value={newCard}
-                  onChange={(e) => setNewCard(e.target.value)}
-                />
-                <Button
-                    variant="contained"
-                    onClick={() => {
-                        if (newCard) {
-                        saveCardTypes([...cardTypes, newCard]);
-                        setNewCard("");
-                      }
-                    }}
-                    sx={btnSx}
-                >
-                    追加
-                </Button>
+    <Box mt={2} justifyItems="center">
+        <Stack direction="row" spacing={5}>
+            <Box>
+      <Typography variant="h5">カード種類</Typography>
+      <TextField
+        value={newCard}
+        onChange={(e) => setNewCard(e.target.value)}
+        placeholder="カード名を入力"
+      />
+      <Button variant="contained" sx={btnSx} onClick={handleAddCard}>追加</Button>
+      <Box width="318px">
+        {cardTypes.map((c) => (
+            <Box
+            key={c}
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
+            >
+            <Typography>{c}</Typography>
+            <Button
+                variant="contained"
+                color="error"
+                sx={btnSx}
+                onClick={() => handleDeleteCard(c)}
+            >
+                削除
+            </Button>
             </Box>
-            <List>
-                {cardTypes.map((c, i) => (
-                <ListItem key={i}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                        <Box width={200}>
-                            <Typography>{c}</Typography>
-                        </Box>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() =>
-                                saveCardTypes(cardTypes.filter((_, idx) => idx !== i))
-                            }
-                            sx={btnSx}
-                            >
-                            削除
-                        </Button>
-                    </Stack>
-                </ListItem>
-                ))}
-            </List>
-        </Stack>
-        <Stack direction="column">
-            <Typography variant="h6">ポイント種類設定</Typography>
-            <Box display="flex" gap={1} mt={1} alignItems="center">
-                <TextField
-                    label="ポイント種類"
-                    value={newPoint}
-                    onChange={(e) => setNewPoint(e.target.value)}
-                />
-                <Button
-                    variant="contained"
-                    onClick={() => {
-                        if (newPoint) {
-                            savePointTypes([...pointTypes, newPoint]);
-                            setNewPoint("");
-                        }
-                    }}
-                    sx={btnSx}
-                >
-                    追加
-                </Button>
+        ))}
+      </Box>
+    </Box>
+    <Box>
+      <Typography variant="h5">ポイント種類</Typography>
+      <TextField
+        value={newPoint}
+        onChange={(e) => setNewPoint(e.target.value)}
+        placeholder="ポイント名を入力"
+      />
+      <Button variant="contained" sx={btnSx} onClick={handleAddPoint}>追加</Button>
+      <Box width="318px">
+        {pointTypes.map((p) => (
+            <Box
+            key={p}
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
+            >
+            <Typography>{p}</Typography>
+            <Button
+                variant="contained"
+                color="error"
+                sx={btnSx}
+                onClick={() => handleDeletePoint(p)}
+            >
+                削除
+            </Button>
             </Box>
-            <List>
-                {pointTypes.map((p, i) => (
-                    <ListItem key={i} >
-                        <Stack direction="row" spacing={2} alignItems="center">
-                            <Box width={200}>
-                                <Typography>{p}</Typography>
-                            </Box>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                onClick={() =>
-                                    savePointTypes(pointTypes.filter((_, idx) => idx !== i))
-                                }
-                                sx={btnSx}
-                            >
-                                削除
-                            </Button>
-                        </Stack>
-                    </ListItem>
-                ))}
-            </List>
-        </Stack>
+        ))}
+      </Box>
+      </Box>
       </Stack>
     </Box>
   );

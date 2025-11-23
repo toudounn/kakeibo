@@ -16,13 +16,14 @@ import {
   livingExpensesItems,
 } from "../assets/util";
 import BalanceCell from "../assets/components/BalanceCell";
+import { getExpenses } from "../db/indexedDB";
 
 export const totalLineSx: SxProps = {
   fontWeight: "bold",
   backgroundColor: "#e0f7fa",
 };
 
-export const tebleRowSx: SxProps = {
+export const tableRowSx: SxProps = {
   fontWeight: "bold",
   backgroundColor: "#e0e7faff",
 };
@@ -48,16 +49,17 @@ export default function Category() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("expenses");
-    if (stored) {
-      try {
-        const parsed: KakeiboItem[] = JSON.parse(stored);
-        setItems(parsed);
-      } catch (e) {
-        console.error("ローカルストレージのデータが不正です", e);
-      }
+  const fetchData = async () => {
+    try {
+      const expenses: KakeiboItem[] = await getExpenses(); // IndexedDBから配列を取得
+      setItems(expenses);
+    } catch (e) {
+      console.error("IndexedDBのデータ取得に失敗しました", e);
     }
-  }, []);
+  };
+
+  fetchData();
+}, []);
 
   // 月ごとの集計関数
   const calcMonthlyTotals = (name: string) => {
@@ -119,13 +121,13 @@ export default function Category() {
       </Typography>
       <Table sx={tableSx}>
         <TableHead>
-          <TableRow sx={tebleRowSx}>
+          <TableRow sx={tableRowSx}>
             <TableCell>項目</TableCell>
             {Array.from({ length: 12 }, (_, i) => (
               <TableCell key={i}>{i + 1}月</TableCell>
             ))}
             <TableCell>合計</TableCell>
-            <TableCell>平均</TableCell> {/* 平均列を追加 */}
+            <TableCell>平均</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -136,7 +138,7 @@ export default function Category() {
                 <TableCell key={i}>{val}</TableCell>
               ))}
               <TableCell>{row.sum}</TableCell>
-              <TableCell>{Math.round(row.sum / 12)}</TableCell> {/* 平均値 */}
+              <TableCell>{Math.round(row.sum / 12)}</TableCell>
             </TableRow>
           ))}
           {total && (
@@ -166,7 +168,7 @@ export default function Category() {
       </Typography>
       <Table sx={tableSx}>
         <TableHead>
-          <TableRow sx={tebleRowSx}>
+          <TableRow sx={tableRowSx}>
             <TableCell>項目</TableCell>
             {Array.from({ length: 12 }, (_, i) => (
               <TableCell key={i}>{i + 1}月</TableCell>
@@ -177,7 +179,7 @@ export default function Category() {
         </TableHead>
         <TableBody>
           <TableRow sx={totalLineSx}>
-            <TableCell>収入 − 支出</TableCell>
+            <TableCell>収入 - 支出</TableCell>
             {balanceMonthly.map((val, i) => (
               <BalanceCell key={i} value={val} />
             ))}

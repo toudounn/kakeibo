@@ -1,25 +1,29 @@
 import { useState, useEffect } from "react";
 import { Table, TableHead, TableRow, TableCell, TableBody, Typography, Box } from "@mui/material";
 import { KakeiboItem } from "../../typs";
-import { tableSx, tebleRowSx } from "../../pages/Category";
+import { tableSx, tableRowSx } from "../../pages/Category";
+import { getExpenses, getPointTypes } from "../../db/indexedDB";
 
 export default function PointSummary() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
   const [pointTypes, setPointTypes] = useState<string[]>([]);
 
   useEffect(() => {
-    // 家計簿データから「ポイント払い」のみ抽出
-    const stored = localStorage.getItem("expenses");
-    if (stored) {
-      const parsed: KakeiboItem[] = JSON.parse(stored);
-      setItems(parsed.filter((item) => item.payment === "ポイント"));
-    }
+    const fetchData = async () => {
+      try {
+        // 家計簿データから「ポイント払い」のみ抽出
+        const expenses: KakeiboItem[] = await getExpenses();
+        setItems(expenses.filter((item) => item.payment === "ポイント"));
 
-    // 設定画面で保存したポイント種類を読み込み
-    const storedPoints = localStorage.getItem("pointTypes");
-    if (storedPoints) {
-      setPointTypes(JSON.parse(storedPoints));
-    }
+        // 設定画面で保存したポイント種類を読み込み
+        const points: string[] = await getPointTypes();
+        setPointTypes(points);
+      } catch (e) {
+        console.error("IndexedDBからのデータ取得に失敗しました", e);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // 種類ごとの合計を計算
@@ -31,7 +35,7 @@ export default function PointSummary() {
       <Typography variant="h5">ポイント払い合計一覧</Typography>
       <Table sx={tableSx}>
         <TableHead>
-          <TableRow sx={tebleRowSx}>
+          <TableRow sx={tableRowSx}>
             <TableCell>ポイント種類</TableCell>
             <TableCell>合計</TableCell>
           </TableRow>

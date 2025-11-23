@@ -7,9 +7,10 @@ import {
   Stack
 } from "@mui/material";
 import { KakeiboItem } from "../typs";
-import { tableSx, tebleRowSx } from "./Category";
+import { tableSx, tableRowSx as tableRowSx } from "./Category";
 import { expenditureExpenseItems, headers, incomeExpenseItems, livingExpensesItems } from "../assets/util";
 import PaymentForm from "../assets/components/PaymentForm";
+import { addExpense, deleteExpense, getExpenses, updateExpense } from "../db/indexedDB";
 
 export default function Input() {
   const [open, setOpen] = useState(false);
@@ -29,11 +30,9 @@ export default function Input() {
   const [payment, setPayment] = useState("");
   const [paymentType, setPaymentType] = useState("");
 
+  // 初期読み込み
   useEffect(() => {
-    const stored = localStorage.getItem("expenses");
-    if (stored) {
-      setItems(JSON.parse(stored));
-    }
+    getExpenses().then(setItems);
   }, []);
 
   const handleRowClick = (row: KakeiboItem) => {
@@ -47,7 +46,7 @@ export default function Input() {
     setOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const newItem: KakeiboItem = {
       id: selectedRow ? selectedRow.id : Date.now(),
       date,
@@ -59,18 +58,15 @@ export default function Input() {
       paymentType,
     };
 
-    let updated: KakeiboItem[];
     if (selectedRow) {
       // 編集更新
-      updated = items.map((item) =>
-        item.id === selectedRow.id ? newItem : item
-      );
+      await updateExpense(newItem);
     } else {
       // 新規追加
-      updated = [...items, newItem];
+      await addExpense(newItem);
     }
 
-    localStorage.setItem("expenses", JSON.stringify(updated));
+    const updated = await getExpenses();
     setItems(updated);
 
     setOpen(false);
@@ -82,7 +78,9 @@ export default function Input() {
     setDate("");
   };
 
-  const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
+  const getItemsByCategory = (
+  category: "収入" | "支出" | "生活費"
+): any[] => {
   switch (category) {
     case "収入":
       return incomeExpenseItems;
@@ -100,12 +98,12 @@ const handleDeleteClick = () => {
 };
 
 // 確認ダイアログで「はい」を押したとき → 実際に削除
-const handleDeleteConfirm = () => {
+const handleDeleteConfirm = async () => {
   if (!selectedRow) return;
 
-  const updated = items.filter((item) => item.id !== selectedRow.id);
-  localStorage.setItem("expenses", JSON.stringify(updated));
-  setItems(updated);
+  await deleteExpense(selectedRow.id);
+    const updated = await getExpenses();
+    setItems(updated);
 
   setConfirmOpen(false);
   setOpen(false);
@@ -157,7 +155,7 @@ const rowsWithTotal = sortedRows.map((row) => {
       </Box>
       <Table sx={tableSx}>
         <TableHead>
-          <TableRow sx={tebleRowSx}>
+          <TableRow sx={tableRowSx}>
             {headers
               .filter((h) => h.Headers !== "平均")
               .map((h) => (
@@ -221,7 +219,7 @@ const rowsWithTotal = sortedRows.map((row) => {
           <FormControl fullWidth margin="dense">
             <InputLabel>費目名</InputLabel>
             <Select value={name} onChange={(e) => setName(e.target.value)}>
-              {getItemsByCategory(category).map((item) => (
+              {(getItemsByCategory(category) || []).map((item: any) => (
                 <MenuItem key={item.accessor} value={item.Headers}>
                   {item.Headers}
                 </MenuItem>
@@ -294,3 +292,5 @@ const rowsWithTotal = sortedRows.map((row) => {
     </Box>
   );
 }
+
+

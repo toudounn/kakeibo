@@ -12,13 +12,13 @@ export default function SummaryPage() {
   };
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
+    <Box sx={{ width: "70%", p: 2 , mx:"auto" }}>
       <Tabs value={tabIndex} onChange={handleChange} centered>
         <Tab label="カード払い合計" />
         <Tab label="ポイント払い合計" />
       </Tabs>
 
-      <Box sx={{ mt: 3 }}>
+      <Box sx={{ mt: 3  }}>
         {tabIndex === 0 && <CardSummary />}
         {tabIndex === 1 && <PointSummary />}
       </Box>
