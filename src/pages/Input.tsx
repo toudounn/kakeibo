@@ -2,39 +2,28 @@ import { useState, useEffect } from "react";
 import {
   Table, TableCell, TableHead, TableRow, TableBody,
   Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Select, MenuItem, FormControl, InputLabel
+  TextField, Select, MenuItem, FormControl, InputLabel,
+  Box,
+  Stack
 } from "@mui/material";
 import { KakeiboItem } from "../typs";
-
-const headers = [
-  { Headers: "年月日", accessor: "date" },
-  { Headers: "費目", accessor: "category" },
-  { Headers: "支出", accessor: "expenditure" },
-  { Headers: "収入", accessor: "income" },
-  { Headers: "合計", accessor: "total" },
-];
-
-// 費目リストを定義
-const incomeItems = ["奈緒子", "佑弥", "將", "嵩大", "年金"];
-const expenditureItems = [
-  "電気", "電話", "水道", "ガス", "灯油", "NHK", "保険", "米",
-  "教育ローン", "車ローン", "SS", "病院", "交通費", "小遣い"
-];
-const livingItems = ["食費", "雑費", "嗜好品", "特別支出"];
+import { tableSx } from "./Category";
+import { expenditureExpenseItems, headers, incomeExpenseItems, livingExpensesItems } from "../assets/util";
 
 export default function Input() {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<KakeiboItem[]>([]);
+  const [selectedRow, setSelectedRow] = useState<KakeiboItem | null>(null);
+ // 削除確認ダイアログ用
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // 入力フォーム用の state
   const [category, setCategory] = useState<"収入" | "支出" | "生活費">("収入");
   const [name, setName] = useState("");
-  const [date,setDate] = useState("");
+  const [date, setDate] = useState("");
   const [month, setMonth] = useState<number>(1);
   const [amount, setAmount] = useState(0);
-  const [payment,setPayment] = useState("")
+  const [payment, setPayment] = useState("");
 
-  // 初期ロード時に localStorage から読み込み
   useEffect(() => {
     const stored = localStorage.getItem("expenses");
     if (stored) {
@@ -42,55 +31,115 @@ export default function Input() {
     }
   }, []);
 
-  // 保存処理
-  const handleSave = () => {
-  const newItem: KakeiboItem = {
-    id: Date.now(),
-    date,                  // 入力した年月日 (YYYY-MM-DD)
-    month,                 // 日付から自動計算された月
-    category,
-    name,
-    amount: Number(amount),
-    payment,
+  const handleRowClick = (row: KakeiboItem) => {
+    setSelectedRow(row);
+    setCategory(row.category);
+    setName(row.name);
+    setDate(row.date);
+    setMonth(row.month);
+    setAmount(row.amount);
+    setPayment(row.payment || "");
+    setOpen(true);
   };
 
-  const stored = localStorage.getItem("expenses");
-  const parsed: KakeiboItem[] = stored ? JSON.parse(stored) : [];
-  parsed.push(newItem);
-  localStorage.setItem("expenses", JSON.stringify(parsed));
-  setItems(parsed);
+  const handleSave = () => {
+    const newItem: KakeiboItem = {
+      id: selectedRow ? selectedRow.id : Date.now(),
+      date,
+      month,
+      category,
+      name,
+      amount: Number(amount),
+      payment,
+    };
 
-  setOpen(false);
-  setName("");
-  setAmount(0);
-  setPayment("");
-  setDate("");
-};
+    let updated: KakeiboItem[];
+    if (selectedRow) {
+      // 編集更新
+      updated = items.map((item) =>
+        item.id === selectedRow.id ? newItem : item
+      );
+    } else {
+      // 新規追加
+      updated = [...items, newItem];
+    }
 
+    localStorage.setItem("expenses", JSON.stringify(updated));
+    setItems(updated);
 
-// カテゴリに応じて費目リストを切り替える関数
-const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
+    setOpen(false);
+    setSelectedRow(null);
+    setName("");
+    setAmount(0);
+    setPayment("");
+    setDate("");
+  };
+
+  const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
   switch (category) {
     case "収入":
-      return incomeItems;
+      return incomeExpenseItems;
     case "支出":
-      return expenditureItems;
+      return expenditureExpenseItems;
     case "生活費":
-      return livingItems;
+      return livingExpensesItems;
     default:
       return [];
   }
 };
 
+const handleDeleteClick = () => {
+  setConfirmOpen(true);
+};
+
+// 確認ダイアログで「はい」を押したとき → 実際に削除
+const handleDeleteConfirm = () => {
+  if (!selectedRow) return;
+
+  const updated = items.filter((item) => item.id !== selectedRow.id);
+  localStorage.setItem("expenses", JSON.stringify(updated));
+  setItems(updated);
+
+  setConfirmOpen(false);
+  setOpen(false);
+  setSelectedRow(null);
+  setName("");
+  setAmount(0);
+  setPayment("");
+  setDate("");
+};
+// 確認ダイアログで「キャンセル」を押したとき
+const handleDeleteCancel = () => {
+  setConfirmOpen(false);
+};
+
+// 累積合計を計算しながら表示用データを作成
+let runningTotal = 0;
+const rowsWithTotal = items.map((row) => {
+  const expenditure =
+    row.category === "支出" || row.category === "生活費" ? row.amount : 0;
+  const income = row.category === "収入" ? row.amount : 0;
+
+  // 累積合計を更新
+  runningTotal += income - expenditure;
+
+  return {
+    ...row,
+    expenditure,
+    income,
+    cumulativeTotal: runningTotal,
+  };
+});
+
   return (
-    <div>
-      {/* 新規入力ボタン */}
-      <Button variant="contained" onClick={() => setOpen(true)}>
+    <Box>
+      <Button variant="contained" onClick={() => {
+        setSelectedRow(null); // 新規入力モード
+        setOpen(true);
+      }}>
         新規入力
       </Button>
-
-      {/* テーブル */}
-      <Table>
+      <Table sx={tableSx}>
         <TableHead>
           <TableRow>
             {headers.map((h) => (
@@ -99,55 +148,52 @@ const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
           </TableRow>
         </TableHead>
         <TableBody>
-            {items.map((row) => {
-                const expenditure = row.category === "支出" || row.category === "生活費" ? row.amount : 0;
-                const income = row.category === "収入" ? row.amount : 0;
-                const total = income - expenditure;
-
-                return (
-                <TableRow key={row.id}>
-                    <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.category}</TableCell>
-                    <TableCell>{expenditure}</TableCell>
-                    <TableCell>{income}</TableCell>
-                    <TableCell style={{ color: total < 0 ? "red" : "black" }}>
-                    {total}
-                    </TableCell>
-                </TableRow>
-                );
-            })}
+          {rowsWithTotal.map((row) => (
+            <TableRow
+              key={row.id}
+              hover
+              onClick={() => handleRowClick(row)}
+              style={{ cursor: "pointer" }}
+            >
+              <TableCell>{row.date}</TableCell>
+              <TableCell>{row.category}</TableCell>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.expenditure}</TableCell>
+              <TableCell>{row.income}</TableCell>
+              <TableCell style={{ color: row.cumulativeTotal < 0 ? "red" : "black" }}>
+                {row.cumulativeTotal}
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
-
       </Table>
-
-      {/* 入力フォームダイアログ */}
+      {/* 入力フォーム */}
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>家計簿入力</DialogTitle>
         <DialogContent>
           <FormControl fullWidth margin="dense">
             <InputLabel>カテゴリ</InputLabel>
             <Select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as "収入" | "支出" | "生活費")}
+              value={category}
+              onChange={(e) =>
+                setCategory(e.target.value as "収入" | "支出" | "生活費")
+              }
             >
-                <MenuItem value="収入">収入</MenuItem>
-                <MenuItem value="支出">支出</MenuItem>
-                <MenuItem value="生活費">生活費</MenuItem>
+              <MenuItem value="収入">収入</MenuItem>
+              <MenuItem value="支出">支出</MenuItem>
+              <MenuItem value="生活費">生活費</MenuItem>
             </Select>
           </FormControl>
-
           <FormControl fullWidth margin="dense">
             <InputLabel>費目名</InputLabel>
-            <Select
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            >
-                {getItemsByCategory(category).map((item) => (
-                <MenuItem key={item} value={item}>{item}</MenuItem>
-                ))}
+            <Select value={name} onChange={(e) => setName(e.target.value)}>
+              {getItemsByCategory(category).map((item) => (
+                <MenuItem key={item.accessor} value={item.Headers}>
+                  {item.Headers}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
-
           <TextField
             margin="dense"
             label="日付"
@@ -155,33 +201,51 @@ const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
             fullWidth
             value={date}
             onChange={(e) => {
-                const value = e.target.value;
-                setDate(value);
-                // 月を自動計算してセット
-                const monthValue = new Date(value).getMonth() + 1;
-                setMonth(monthValue);
+              const value = e.target.value;
+              setDate(value);
+              const monthValue = new Date(value).getMonth() + 1;
+              setMonth(monthValue);
             }}
             InputLabelProps={{ shrink: true }}
           />
-
           <TextField
             type="number"
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
-            label={category === "収入" ? "収入金額" : "支出金額"} // ←カテゴリでラベル切り替え
+            label={category === "収入" ? "収入金額" : "支出金額"}
             fullWidth
             margin="dense"
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>キャンセル</Button>
-          <Button onClick={handleSave} variant="contained" color="primary">
-            保存
+          <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%",m:2 }}>
+            {selectedRow && (
+              <Button onClick={handleDeleteClick} variant="contained" color="error">
+                削除
+              </Button>
+            )}
+            <Stack direction="row" spacing={2}>
+              <Button onClick={() => setOpen(false)} variant="outlined">キャンセル</Button>
+              <Button onClick={handleSave} variant="contained" color="primary">
+                保存
+              </Button>
+            </Stack>
+          </Box>
+        </DialogActions>
+      </Dialog>
+      {/* 削除確認ダイアログ */}
+      <Dialog open={confirmOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>削除確認</DialogTitle>
+        <DialogContent>
+          {selectedRow ? `${selectedRow.name} を本当に削除しますか？` : "本当に削除しますか？"}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>キャンセル</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            削除する
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 }
-
-

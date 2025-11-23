@@ -4,13 +4,21 @@ import { KakeiboItem } from "../typs";
 import { incomeExpenseItems, expenditureExpenseItems, livingExpensesItems } from "../assets/util";
 import BalanceCell from "../assets/components/BalanceCell";
 
-const totalLineSx: SxProps = {
+export const totalLineSx: SxProps = {
  fontWeight: "bold", backgroundColor: "#e0f7fa" 
 }
 
-const tebleRowSx:SxProps = {
+export const tebleRowSx:SxProps = {
   fontWeight: "bold", backgroundColor: "#e0e7faff" 
 }
+
+export const tableSx:SxProps = {
+        border: "1px solid black",
+        borderCollapse: "collapse",
+        "& td, & th": {
+          border: "1px solid black",
+        },
+      }
 
 export default function Category() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
@@ -75,13 +83,7 @@ export default function Category() {
   const renderTable = (title: string, rows: { Headers: string; monthly: number[]; sum: number }[], total?: { monthly: number[]; sum: number }) => (
     <>
       <Typography variant="h6" sx={{ mt: 3 }}>{title}</Typography>
-      <Table sx={{
-        border: "1px solid black",
-        borderCollapse: "collapse",
-        "& td, & th": {
-          border: "1px solid black",
-        },
-      }}>
+      <Table sx={tableSx}>
         <TableHead>
           <TableRow sx={tebleRowSx}>
             <TableCell>項目</TableCell>

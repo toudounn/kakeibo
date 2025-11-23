@@ -23,7 +23,8 @@ export type calenders = {
 export const headerItems = [
     {Headers:"No" , accessor:"id"},
     {Headers:"年月日" , accessor:"date"},
-    {Headers:"項目" , accessor:"item"},
+    {Headers:"カテゴリ" , accessor:"category"},
+    {Headers:"費目" , accessor:"item"},
     {Headers:"支払方法" , accessor:"payment"},
     {Headers:"金額" , accessor:"money"},
     {Headers:"備考" , accessor:"memo"},
@@ -60,67 +61,11 @@ export const livingExpensesItems = [
     {Headers:"嗜好品",accessor:"luxury"},
     {Headers:"特別支出",accessor:"special"},
 ]
-
-export const iryouHeaders = [
-    {
-        Headers:"No",Accesser:"id"
-    },
-    {
-        Headers:"名前",Accesser:"name"
-    },
-    {
-        Headers:"病院等の名称",Accesser:"hospitalname"
-    },
-    // {
-    //     Headers:"医療費の区分",Accesser:"classification"
-    // },
-    {
-        Headers:"診療・治療",Accesser:"treatment"
-    },
-    {
-        Headers:"医薬品購入",Accesser:"purchasingmedicines"
-    },
-    {
-        Headers:"介護保険サービス",Accesser:"nursingcareinsurance"
-    },
-    {
-        Headers:"その他医療費",Accesser:"othermedicalexpenses"
-    },
-    {
-        Headers:"医療費",Accesser:"medicalexpenses"
-    },
-    {
-        Headers:"補填された額",Accesser:"Compensation"
-    },
-    {
-        Headers:"支払年月日",Accesser:"date"
-    }
-]
-
-export type iryouItems = {
-    id: number,
-    name: string,
-    hospitalname:string,
-    treatment:string,
-    purchasingmedicines:string,
-    nursingcareinsurance:string,
-    othermedicalexpenses:string,
-    medicalexpenses:string,
-    compensation:string,
-    date: string,
-}
-
-export const iryouItems = [
-    {
-        id: 1,
-        name: "東藤　奈緒子",
-        hospitalname:"ともメンタルクリニック",
-        treatment:"該当する",
-        purchasingmedicines:"",
-        nursingcareinsurance:"",
-        othermedicalexpenses:"",
-        medicalexpenses:"690",
-        compensation:"",
-        date: "2024/7/6",
-    },
-]
+export const headers = [
+  { Headers: "年月日", accessor: "date" },
+  {Headers:"カテゴリ" , accessor:"category"},
+  { Headers: "費目", accessor: "category" },
+  { Headers: "支出", accessor: "expenditure" },
+  { Headers: "収入", accessor: "income" },
+  { Headers: "合計", accessor: "total" },
+];
