@@ -148,7 +148,7 @@ export default function Category() {
                 <TableCell key={i}>{val}</TableCell>
               ))}
               <TableCell>{total.sum}</TableCell>
-              <TableCell>{Math.round(total.sum / 12)}</TableCell> {/* 合計の平均 */}
+              <TableCell>{Math.round(total.sum / 12)}</TableCell>
             </TableRow>
           )}
         </TableBody>
@@ -162,7 +162,6 @@ export default function Category() {
       {renderTable("収入", incomeRows, incomeTotal)}
       {renderTable("支出", expenditureRows, expenditureTotal)}
       {renderTable("生活費", livingRows, livingTotal)}
-
       <Typography variant="h6" sx={{ mt: 3 }}>
         残高
       </Typography>
@@ -174,7 +173,7 @@ export default function Category() {
               <TableCell key={i}>{i + 1}月</TableCell>
             ))}
             <TableCell>合計</TableCell>
-            <TableCell>平均</TableCell> {/* 平均列を追加 */}
+            <TableCell>平均</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -184,7 +183,7 @@ export default function Category() {
               <BalanceCell key={i} value={val} />
             ))}
             <BalanceCell value={balanceSum} />
-            <BalanceCell value={Math.round(balanceSum / balanceMonthly.length)} /> {/* 整数に丸める */}
+            <BalanceCell value={Math.round(balanceSum / balanceMonthly.length)} />
           </TableRow>
         </TableBody>
       </Table>

@@ -3,3 +3,8 @@ th[class*="Mui"],
 table[class*="Mui"]{
   text-align: center;
 }
+td[class*="Mui"],
+th[class*="Mui"],
+table[class*="Mui"]{
+  padding: 0;
+}

@@ -21,6 +21,9 @@ export default function Layout() {
           <Button color="inherit" component={Link} to="/settings">
             設定
           </Button>
+          <Button color="inherit" component={Link} to="/simulation">
+            シュミレーション
+          </Button>
         </Toolbar>
       </AppBar>
       <Outlet />

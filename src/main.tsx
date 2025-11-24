@@ -8,6 +8,7 @@ import Category from './pages/Category.tsx'
 import SummaryPage from './pages/SummaryPage.tsx'
 import Settings from './assets/components/Settings.tsx'
 import GraphPage from './pages/GraphPage.tsx'
+import LifePlanChart from './pages/LifePlanChart/LifePlanChart.tsx'
 
 const router = createHashRouter([
   {
@@ -20,6 +21,7 @@ const router = createHashRouter([
       { path: "summary", element: <SummaryPage /> },
       { path: "graph-page", element:<GraphPage />},
       { path: "settings", element: <Settings /> },
+      { path: "simulation", element: <LifePlanChart /> },
     ],
   },
 ]);
