@@ -11,7 +11,7 @@
 
 1. **基本機能**
    - `FormDialog.tsx` で入力フォームを作成  
-   - 登録ボタンで localStorage に保存  
+   - 登録ボタンで indexedDB に保存  
    - 削除ボタンでデータを消去  
 
 2. **一覧表示**
@@ -42,7 +42,6 @@
 
 ---
 
-次は、このメモに **「年間合計」や「ランキング表示」」の設計案**も追記していきますか？
 
 
-https://copilot.microsoft.com/shares/uBHBc512HWXgFeDfQn83b
+https://copilot.microsoft.com/shares/ARTsxwNWVnFVjtcGS2TEj

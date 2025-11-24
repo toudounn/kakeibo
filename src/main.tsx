@@ -4,48 +4,25 @@ import App from './App.tsx'
 import './index.css'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import Layout from './assets/components/Layout.tsx'
-import GrandTotal from './pages/GrandTotal.tsx'
-import Point from './pages/Point.tsx'
-import Iryou from './pages/Iryou.tsx'
-import { Card } from '@mui/material'
-import MonthlyCategoryTotal from './pages/MonthlyCategoryTotal.tsx'
-import MonthlyYearlyTotal from './pages/MonthlyYearlyTotal.tsx'
+import Category from './pages/Category.tsx'
+import SummaryPage from './pages/SummaryPage.tsx'
+import Settings from './assets/components/Settings.tsx'
+import GraphPage from './pages/GraphPage.tsx'
 
 const router = createHashRouter([
   {
     path: "/",
-    Component: Layout,
+    element: <Layout />,
     children: [
-      { index: true, Component: App },
-      { path: "home", Component: App },
-      {
-        path: "grand-total",
-        Component: GrandTotal,
-      },
-      {
-        path: "monthly-category-total", // ←ここで MonthlyCategoryTotal を登録
-        Component: MonthlyCategoryTotal,
-      },
-      {
-  path:"monthly-yearly-total",
-  Component: MonthlyYearlyTotal,
-},
-      {
-        path: "point",
-        Component: Point,
-      },
-      {
-        path: "iryou",
-        Component: Iryou,
-      },
-      {
-        path: "card",
-        Component: Card,
-      },
+      { index: true, element: <App /> },
+      { path: "home", element: <App /> },
+      { path: "category", element: <Category /> },
+      { path: "summary", element: <SummaryPage /> },
+      { path: "graph-page", element:<GraphPage />},
+      { path: "settings", element: <Settings /> },
     ],
   },
 ]);
-
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

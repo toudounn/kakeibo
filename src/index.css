@@ -1,0 +1,5 @@
+td[class*="Mui"],
+th[class*="Mui"],
+table[class*="Mui"]{
+  text-align: center;
+}
