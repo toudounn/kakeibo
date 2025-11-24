@@ -51,7 +51,7 @@ export default function Category() {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      const expenses: KakeiboItem[] = await getExpenses(); // IndexedDBから配列を取得
+      const expenses: KakeiboItem[] = await getExpenses();
       setItems(expenses);
     } catch (e) {
       console.error("IndexedDBのデータ取得に失敗しました", e);
@@ -157,8 +157,8 @@ export default function Category() {
   );
 
   return (
-    <Box m={2}>
-      <Typography variant="h5">カテゴリ別一覧</Typography>
+    <Box m={2} className="table-wrapper">
+      <Typography variant="h5">年間</Typography>
       {renderTable("収入", incomeRows, incomeTotal)}
       {renderTable("支出", expenditureRows, expenditureTotal)}
       {renderTable("生活費", livingRows, livingTotal)}
@@ -179,7 +179,7 @@ export default function Category() {
         </TableHead>
         <TableBody>
           <TableRow sx={totalLineSx}>
-            <TableCell>収入 - 支出</TableCell>
+            <TableCell>収入-支出</TableCell>
             {balanceMonthly.map((val, i) => (
               <BalanceCell key={i} value={val} />
             ))}

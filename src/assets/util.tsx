@@ -31,8 +31,8 @@ export const livingExpensesItems = [
 ]
 export const headers = [
   { Headers: "年月日", accessor: "date" },
-  {Headers:"カテゴリ" , accessor:"category"},
-  { Headers: "費目", accessor: "category" },
+  { Headers: "カテゴリ", accessor:"category"},
+  { Headers: "費目", accessor: "expenseitem" },
   { Headers: "支出", accessor: "expenditure" },
   { Headers: "収入", accessor: "income" },
   { Headers: "合計", accessor: "total" },

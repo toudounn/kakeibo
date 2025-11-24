@@ -1,0 +1,17 @@
+.table-wrapper {
+  overflow-x: auto;   /* 横スクロールを有効化 */
+  -webkit-overflow-scrolling: touch; /* iOSでスムーズスクロール */
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 600px;   /* 表を画面幅より広くする */
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  white-space: nowrap; /* 折り返し防止で横に伸ばす */
+}
+
+

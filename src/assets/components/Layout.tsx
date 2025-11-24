@@ -10,10 +10,10 @@ export default function Layout() {
             ホーム
           </Button>
           <Button color="inherit" component={Link} to="/category">
-            カテゴリ別一覧
+            年間
           </Button>
           <Button color="inherit" component={Link} to="/summary">
-            その他一覧
+            その他
           </Button>
           <Button color="inherit" component={Link} to="/graph-page">
             グラフ

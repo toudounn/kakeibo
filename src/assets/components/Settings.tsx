@@ -7,7 +7,7 @@ import {
   deleteCardType,
   deletePointType,
 } from "../../db/indexedDB";
-import { Box, Button, Stack, SxProps, TextField, Typography } from "@mui/material";
+import { Box, Button, SxProps, TextField, Typography } from "@mui/material";
 
 const btnSx: SxProps = {mx:2,my:1}
 
@@ -44,74 +44,65 @@ export default function Settings() {
   // 削除
   const handleDeleteCard = async (type: string) => {
   const updated = await deleteCardType(type);
-  setCardTypes(updated); // ← 状態を更新
+  setCardTypes(updated);
 };
-
 
   const handleDeletePoint = async (type: string) => {
   const updated = await deletePointType(type);
   setPointTypes(updated);
 };
 
-
   return (
     <Box mt={2} justifyItems="center">
-        <Stack direction="row" spacing={5}>
-            <Box>
-      <Typography variant="h5">カード種類</Typography>
-      <TextField
-        value={newCard}
-        onChange={(e) => setNewCard(e.target.value)}
-        placeholder="カード名を入力"
-      />
-      <Button variant="contained" sx={btnSx} onClick={handleAddCard}>追加</Button>
-      <Box width="318px">
-        {cardTypes.map((c) => (
-            <Box
-            key={c}
-            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
-            >
-            <Typography>{c}</Typography>
-            <Button
-                variant="contained"
-                color="error"
-                sx={btnSx}
-                onClick={() => handleDeleteCard(c)}
-            >
-                削除
-            </Button>
-            </Box>
-        ))}
+      <Box>
+        <Typography variant="h5">カード種類</Typography>
+        <TextField
+          value={newCard}
+          onChange={(e) => setNewCard(e.target.value)}
+          placeholder="カード名を入力"
+        />
+        <Button variant="contained" sx={btnSx} onClick={handleAddCard}>追加</Button>
+        <Box width="318px">
+          {cardTypes.map((c,index) => (
+              <Box
+              key={`${c}-${index}`} 
+              sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
+              >
+              <Typography>{c}</Typography>
+              <Button
+                  variant="contained"
+                  color="error"
+                  sx={btnSx}
+                  onClick={() => handleDeleteCard(c)}
+              >
+                  削除
+              </Button>
+              </Box>
+          ))}
+        </Box>
       </Box>
-    </Box>
-    <Box>
-      <Typography variant="h5">ポイント種類</Typography>
-      <TextField
-        value={newPoint}
-        onChange={(e) => setNewPoint(e.target.value)}
-        placeholder="ポイント名を入力"
-      />
-      <Button variant="contained" sx={btnSx} onClick={handleAddPoint}>追加</Button>
-      <Box width="318px">
-        {pointTypes.map((p) => (
-            <Box
-            key={p}
-            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
-            >
+      <Box>
+        <Typography variant="h5">ポイント種類</Typography>
+        <TextField
+          value={newPoint}
+          onChange={(e) => setNewPoint(e.target.value)}
+          placeholder="ポイント名を入力"
+        />
+        <Button variant="contained" sx={btnSx} onClick={handleAddPoint}>追加</Button>
+        {pointTypes.map((p, index) => (
+          <Box key={`${p}-${index}`} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
             <Typography>{p}</Typography>
             <Button
-                variant="contained"
-                color="error"
-                sx={btnSx}
-                onClick={() => handleDeletePoint(p)}
+              variant="contained"
+              color="error"
+              sx={btnSx}
+              onClick={() => handleDeletePoint(p)}
             >
-                削除
+              削除
             </Button>
-            </Box>
+          </Box>
         ))}
       </Box>
-      </Box>
-      </Stack>
     </Box>
   );
 }

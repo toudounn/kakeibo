@@ -219,8 +219,8 @@ const rowsWithTotal = sortedRows.map((row) => {
           <FormControl fullWidth margin="dense">
             <InputLabel>費目名</InputLabel>
             <Select value={name} onChange={(e) => setName(e.target.value)}>
-              {(getItemsByCategory(category) || []).map((item: any) => (
-                <MenuItem key={item.accessor} value={item.Headers}>
+              {(getItemsByCategory(category) || []).map((item: any, index: number) => (
+                <MenuItem key={`${item.accessor}-${index}`} value={item.Headers}>
                   {item.Headers}
                 </MenuItem>
               ))}
