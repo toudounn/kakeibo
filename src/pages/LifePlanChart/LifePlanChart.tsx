@@ -17,6 +17,7 @@ import {
   DialogActions,
   SelectChangeEvent,
   SxProps,
+  Typography,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -151,10 +152,16 @@ export default function LifePlanChart() {
             </Stack>
         </Box>
     </Stack>
-    <Table size="small">
+    <Table size="small" sx={{
+      border: "1px solid black",
+      "& td, & th": {
+        border: "1px solid black",
+        "& tr": {
+          height: "20px", // Excel風に詰める
+        },}}} >
     <TableHead>
         <TableRow>
-        <TableCell>イベント</TableCell>
+        <TableCell sx={{width:"50px"}}><Typography fontSize="10px">イベント</Typography></TableCell>
         {years.map((y, i) => (
             <TableCell key={y}>
             {y}年<br />({baseAge + i}歳)
@@ -186,7 +193,7 @@ export default function LifePlanChart() {
 
         {/* 収支差額行 */}
         <TableRow>
-        <TableCell sx={{ fontWeight: "bold" }}>収支差額</TableCell>
+        <TableCell sx={{ fontWeight: "bold" }}><Typography fontSize="10px">収支差額</Typography></TableCell>
         {years.map((y, j) => {
             const currentAge = baseAge + j;
 
@@ -223,7 +230,7 @@ export default function LifePlanChart() {
 
         {/* 累積差額行 */}
         <TableRow>
-        <TableCell sx={{ fontWeight: "bold" }}>累積差額</TableCell>
+        <TableCell sx={{ fontWeight: "bold" }}><Typography fontSize="10px">累積差額</Typography></TableCell>
         {years.map((y, j) => {
             const currentAge = baseAge + j;
 
