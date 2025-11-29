@@ -29,6 +29,7 @@ export const livingExpensesItems = [
     {Headers:"嗜好品",accessor:"luxury"},
     {Headers:"特別支出",accessor:"special"},
 ]
+
 export const headers = [
   { Headers: "年月日", accessor: "date" },
   { Headers: "カテゴリ", accessor:"category"},
