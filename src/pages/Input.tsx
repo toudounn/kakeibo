@@ -35,6 +35,16 @@ export default function Input() {
     getExpenses().then(setItems);
   }, []);
 
+  useEffect(() => {
+  const today = new Date();
+  const m = today.getMonth() + 1; // 月（0始まりなので+1）
+  const d = today.getDate();      // 日
+
+  setMonth(m);
+  setDate(`${m}/${d}`); // 例: "3/15"
+}, []);
+
+
   const handleRowClick = (row: KakeiboItem) => {
     setSelectedRow(row);
     setCategory(row.category);
@@ -153,7 +163,7 @@ const rowsWithTotal = sortedRows.map((row) => {
         新規入力
       </Button>
       </Box>
-      <Table sx={tableSx}>
+      <Table className="table-container" sx={tableSx}>
         <TableHead>
           <TableRow sx={tableRowSx}>
             {headers
@@ -186,7 +196,8 @@ const rowsWithTotal = sortedRows.map((row) => {
               onClick={() => handleRowClick(row)}
               style={{ cursor: "pointer" }}
             >
-              <TableCell>{row.date}</TableCell>
+              {/* <TableCell>{row.date}</TableCell> */}
+              <TableCell>{new Date(row.date).getMonth() + 1}/{new Date(row.date).getDate()}</TableCell>
               <TableCell>{row.category}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.expenditure}</TableCell>

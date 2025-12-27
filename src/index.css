@@ -8,3 +8,13 @@ th[class*="Mui"],
 table[class*="Mui"]{
   padding: 0;
 }
+
+/* 横向きのときだけ適用 */
+@media (orientation: landscape) {
+  .table-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+}
+
