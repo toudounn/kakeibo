@@ -1,47 +1,54 @@
-import { useState, useEffect } from "react";
 import {
+  Box,
+  Typography,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  Typography,
-  SxProps,
-  Box,
+  Button,
 } from "@mui/material";
-import { KakeiboItem } from "../typs";
+import { useEffect, useState,useRef } from "react";
 import {
   incomeExpenseItems,
   expenditureExpenseItems,
   livingExpensesItems,
-} from "../assets/util";
-import BalanceCell from "../assets/components/BalanceCell";
+} from "../assets/util"; 
 import { getExpenses } from "../db/indexedDB";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
-export const totalLineSx: SxProps = {
+// IndexedDBから取得するデータ型
+type KakeiboItem = {
+  name: string;
+  month: number;
+  amount: number;
+};
+
+export const totalLineSx = {
   fontWeight: "bold",
   backgroundColor: "#e0f7fa",
 };
 
-export const tableRowSx: SxProps = {
+export const tableRowSx = {
   fontWeight: "bold",
   backgroundColor: "#e0e7faff",
 };
 
-export const tableSx: SxProps = {
+export const tableSx = {
   border: "1px solid black",
   borderCollapse: "collapse",
-  tableLayout: "fixed", // 横幅を固定レイアウトに
-  width: "100%", // 全体幅を固定
+  tableLayout: "fixed",
+  width: "100%",
   "& td, & th": {
     border: "1px solid black",
-    padding: "0px 4px", // ほぼ余白ゼロ
-    whiteSpace: "nowrap", // 折り返し防止
-    overflow: "hidden", // はみ出しを隠す
-    textOverflow: "ellipsis", // 長い文字は「…」で省略
+    padding: "0px 4px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   "& tr": {
-    height: "20px", // Excel風に詰める
+    height: "20px",
   },
 };
 
@@ -49,17 +56,17 @@ export default function Category() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const expenses: KakeiboItem[] = await getExpenses();
-      setItems(expenses);
-    } catch (e) {
-      console.error("IndexedDBのデータ取得に失敗しました", e);
-    }
-  };
-
-  fetchData();
-}, []);
+    const fetchData = async () => {
+      try {
+        // IndexedDBからデータ取得する処理（仮）
+        const expenses: KakeiboItem[] = await getExpenses();
+        setItems(expenses);
+      } catch (e) {
+        console.error("IndexedDBのデータ取得に失敗しました", e);
+      }
+    };
+    fetchData();
+  }, []);
 
   // 月ごとの集計関数
   const calcMonthlyTotals = (name: string) => {
@@ -109,14 +116,35 @@ export default function Category() {
   );
   const balanceSum = incomeTotal.sum - expenditureTotal.sum;
 
-  // 共通テーブル描画関数（平均列を追加）
+  // ★ グラフページ用に保存
+  useEffect(() => {
+  localStorage.setItem(
+    "graphData",
+    JSON.stringify({
+      incomeMonthly: incomeTotal.monthly,
+      expenditureMonthly: expenditureTotal.monthly,
+      balanceMonthly,
+      incomeSum: incomeTotal.sum,
+      expenditureSum: expenditureTotal.sum,
+      balanceSum,
+      expenditureRows: expenditureRows.map((r) => ({
+        Headers: r.Headers,
+        sum: r.sum,
+        monthly: r.monthly,
+      })),
+    })
+  );
+}, [incomeTotal, expenditureTotal, balanceMonthly, balanceSum, expenditureRows]);
+
+
+  // 共通テーブル描画関数
   const renderTable = (
     title: string,
     rows: { Headers: string; monthly: number[]; sum: number }[],
     total?: { monthly: number[]; sum: number }
   ) => (
     <>
-      <Typography variant="h6" sx={{ mt: 3 }}>
+      <Typography variant="h6" >
         {title}
       </Typography>
       <Table sx={tableSx}>
@@ -148,7 +176,7 @@ export default function Category() {
                 <TableCell key={i}>{val}</TableCell>
               ))}
               <TableCell>{total.sum}</TableCell>
-              <TableCell>{Math.round(total.sum / 12)}</TableCell> {/* 合計の平均 */}
+              <TableCell>{Math.round(total.sum / 12)}</TableCell>
             </TableRow>
           )}
         </TableBody>
@@ -156,38 +184,86 @@ export default function Category() {
     </>
   );
 
-  return (
-    <Box m={2} className="table-wrapper">
-      <Typography variant="h5">年間</Typography>
-      {renderTable("収入", incomeRows, incomeTotal)}
-      {renderTable("支出", expenditureRows, expenditureTotal)}
-      {renderTable("生活費", livingRows, livingTotal)}
+  const tableRef = useRef<HTMLDivElement>(null);
 
-      <Typography variant="h6" sx={{ mt: 3 }}>
-        残高
-      </Typography>
-      <Table sx={tableSx}>
-        <TableHead>
-          <TableRow sx={tableRowSx}>
-            <TableCell>項目</TableCell>
-            {Array.from({ length: 12 }, (_, i) => (
-              <TableCell key={i}>{i + 1}月</TableCell>
-            ))}
-            <TableCell>合計</TableCell>
-            <TableCell>平均</TableCell> {/* 平均列を追加 */}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow sx={totalLineSx}>
-            <TableCell>収入-支出</TableCell>
-            {balanceMonthly.map((val, i) => (
-              <BalanceCell key={i} value={val} />
-            ))}
-            <BalanceCell value={balanceSum} />
-            <BalanceCell value={Math.round(balanceSum / balanceMonthly.length)} /> {/* 整数に丸める */}
-          </TableRow>
-        </TableBody>
-      </Table>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const expenses: KakeiboItem[] = await getExpenses();
+        setItems(expenses);
+      } catch (e) {
+        console.error("IndexedDBのデータ取得に失敗しました", e);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // PDF出力処理
+  const handleExportPDF = async () => {
+  if (!tableRef.current) return;
+
+  const pdf = new jsPDF("landscape", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+
+  // Title (left)
+  pdf.setFontSize(18);
+  pdf.text("kakeibo", 10, 15);
+
+  // Date (right)
+  pdf.setFontSize(12);
+  const dateText = `since: ${new Date().toLocaleDateString()}`;
+  pdf.text(dateText, pageWidth - 10, 15, { align: "right" });
+
+  const canvas = await html2canvas(tableRef.current);
+  const imgData = canvas.toDataURL("image/png");
+
+  const imgProps = pdf.getImageProperties(imgData);
+  const pdfWidth = pageWidth - 20;
+  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+  pdf.addImage(imgData, "PNG", 10, 22, pdfWidth, pdfHeight);
+
+  pdf.save("CategorySummary.pdf");
+};
+
+
+  return (
+    <Box m={2}>
+      <Button variant="contained" color="primary" onClick={handleExportPDF} >
+        PDFに保存
+      </Button>
+      <Box ref={tableRef}>
+        <Box  className="table-wrapper">
+          {renderTable("収入", incomeRows, incomeTotal)}
+          {renderTable("支出", expenditureRows, expenditureTotal)}
+          {renderTable("生活費", livingRows, livingTotal)}
+          <Typography variant="h6">
+            残高
+          </Typography>
+          <Table sx={tableSx}>
+            <TableHead>
+              <TableRow sx={tableRowSx}>
+                <TableCell>項目</TableCell>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <TableCell key={i}>{i + 1}月</TableCell>
+                ))}
+                <TableCell>合計</TableCell>
+                <TableCell>平均</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow sx={totalLineSx}>
+                <TableCell>収入-支出</TableCell>
+                {balanceMonthly.map((val, i) => (
+                  <TableCell key={i}>{val}</TableCell>
+                ))}
+                <TableCell>{balanceSum}</TableCell>
+                <TableCell>{Math.round(balanceSum / balanceMonthly.length)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+      </Box>
     </Box>
   );
 }

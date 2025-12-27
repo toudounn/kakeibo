@@ -7,9 +7,10 @@ import {
   deleteCardType,
   deletePointType,
 } from "../../db/indexedDB";
-import { Box, Button, SxProps, TextField, Typography } from "@mui/material";
+import { Box, Button, Stack, SxProps, TextField, Typography } from "@mui/material";
+import ExpenseItemsSetting from "./ExpenseItemsSetting";
 
-const btnSx: SxProps = {mx:2,my:1}
+export const btnSx: SxProps = {mx:2,my:1,height:"40px"}
 
 export default function Settings() {
   const [cardTypes, setCardTypes] = useState<string[]>([]);
@@ -54,6 +55,7 @@ export default function Settings() {
 
   return (
     <Box mt={2} justifyItems="center">
+      <Stack direction="row">
       <Box>
         <Typography variant="h5">カード種類</Typography>
         <TextField
@@ -103,6 +105,8 @@ export default function Settings() {
           </Box>
         ))}
       </Box>
+      <ExpenseItemsSetting />
+      </Stack>
     </Box>
   );
 }

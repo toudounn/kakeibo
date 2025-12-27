@@ -1,115 +1,162 @@
-import { useState, useEffect } from "react";
-import { Box, Typography, Tabs, Tab, Select, MenuItem, SxProps } from "@mui/material";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { KakeiboItem } from "../typs";
+import { Box, Typography, Tabs, Tab } from "@mui/material";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  BarChart, Bar, PieChart, Pie, Cell
+} from "recharts";
+import { useState } from "react";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA66CC"];
 
-const pieSx:SxProps = { width: "100%",maxWidth:"300px" }
+type ExpenditureRow = { Headers: string; monthly: number[]; sum: number };
 
 export default function GraphPage() {
-  const [items, setItems] = useState<KakeiboItem[]>([]);
-  const [tab, setTab] = useState(0);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const data = localStorage.getItem("graphData");
+  if (!data) return <Typography>データがありません</Typography>;
 
-  const options = {
-  responsive: true,
-  // アスペクト比を維持
-  maintainAspectRatio: true, 
-};
-
-  useEffect(() => {
-    const stored = localStorage.getItem("expenses");
-    if (stored) {
-      setItems(JSON.parse(stored));
-    }
-  }, []);
-
-  // 月ごと集計（選択した月のみ）
-  const monthlyTotals: Record<string, number> = {};
-  items
-    .filter((item) => new Date(item.date).getMonth() + 1 === selectedMonth)
-    .forEach((item) => {
-      monthlyTotals[item.category] = (monthlyTotals[item.category] || 0) + item.amount;
-    });
-
-  const monthlyData = {
-    labels: Object.keys(monthlyTotals),
-    datasets: [
-      {
-        data: Object.values(monthlyTotals),
-        backgroundColor: ["#4caf50", "#f44336", "#2196f3"],
-      },
-    ],
+  const parsed = JSON.parse(data) as {
+    incomeMonthly: number[];
+    expenditureMonthly: number[];
+    balanceMonthly: number[];
+    incomeSum: number;
+    expenditureSum: number;
+    balanceSum: number;
+    expenditureRows: ExpenditureRow[];
   };
 
-  // 年ごと集計（選択した年のみ）
-  const yearlyTotals: Record<string, number> = {};
-  items
-    .filter((item) => new Date(item.date).getFullYear() === selectedYear)
-    .forEach((item) => {
-      yearlyTotals[item.category] = (yearlyTotals[item.category] || 0) + item.amount;
-    });
+  const {
+    incomeMonthly = [],
+    expenditureMonthly = [],
+    balanceMonthly = [],
+    incomeSum = 0,
+    expenditureSum = 0,
+    balanceSum = 0,
+    expenditureRows = [],
+  } = parsed;
 
-  const yearlyData = {
-    labels: Object.keys(yearlyTotals),
-    datasets: [
-      {
-        data: Object.values(yearlyTotals),
-        backgroundColor: ["#4caf50", "#f44336", "#2196f3"],
-      },
-    ],
-  };
+  // 月別データ
+  const monthlyData = Array.from({ length: 12 }, (_, i) => ({
+    month: `${i + 1}月`,
+    income: incomeMonthly[i] ?? 0,
+    expenditure: expenditureMonthly[i] ?? 0,
+    balance: balanceMonthly[i] ?? 0,
+  }));
+
+  // 年間合計データ
+  const annualData = [
+    { name: "収入", value: incomeSum },
+    { name: "支出", value: expenditureSum },
+    { name: "残高", value: balanceSum },
+  ];
+
+  // 年間支出項目別円グラフ
+  const annualPieData = expenditureRows.map((row) => ({
+    name: row.Headers,
+    value: row.sum ?? 0,
+  }));
+
+// 月別支出項目別円グラフデータ
+const monthlyPieData = Array.from({ length: 12 }, (_, i) => ({
+  month: `${i + 1}月`,
+  data: expenditureRows.map((row) => ({
+    name: row.Headers,
+    value: row.monthly?.[i] ?? 0,  // ← 安全に参照
+  })),
+}));
+
+  // タブ切り替え用 state
+  const [tabIndex, setTabIndex] = useState(0);
+
+  // 安全に参照
+  const currentMonthData =
+    monthlyPieData.length > tabIndex ? monthlyPieData[tabIndex] : { month: "", data: [] };
+console.log("expenditureRows", expenditureRows);
+console.log("monthlyPieData", monthlyPieData);
 
   return (
     <Box m={2}>
-      <Typography variant="h5">費目グラフ</Typography>
-      <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
-        <Tab label="月ごと" />
-        <Tab label="年ごと" />
+      <Typography variant="h5">月別収入・支出・残高グラフ</Typography>
+      <LineChart width={800} height={300} data={monthlyData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey="income" stroke="#0088FE" name="収入" />
+        <Line type="monotone" dataKey="expenditure" stroke="#FF8042" name="支出" />
+        <Line type="monotone" dataKey="balance" stroke="#00C49F" name="残高" />
+      </LineChart>
+
+      <Typography variant="h5" mt={4}>年間合計</Typography>
+      <BarChart width={600} height={300} data={annualData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="value" fill="#8884d8" />
+      </BarChart>
+
+      <Typography variant="h5" mt={4}>年間支出項目別円グラフ</Typography>
+      <PieChart width={600} height={400}>
+        <Pie
+          data={annualPieData}
+          cx={300}
+          cy={200}
+          labelLine={false}
+          label={(props) =>
+            `${props.name ?? ""} ${((props.percent ?? 0) * 100).toFixed(0)}%`
+          }
+          outerRadius={150}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {annualPieData.map((_, index: number) => (
+            <Cell key={index} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+
+      <Typography variant="h5" mt={4}>月別支出項目別円グラフ</Typography>
+      <Tabs
+        value={tabIndex}
+        onChange={(_, newValue) => setTabIndex(newValue)}
+        variant="scrollable"
+        scrollButtons="auto"
+      >
+        {monthlyPieData.map((m, idx) => (
+          <Tab key={idx} label={m.month} />
+        ))}
       </Tabs>
 
-
-      {tab === 0 && (
-        <>
-          <Select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            sx={{ my: 2 }}
-          >
-            {[...Array(12)].map((_, i) => (
-              <MenuItem key={i + 1} value={i + 1}>
-                {i + 1}月
-              </MenuItem>
-            ))}
-          </Select>
-          <Box sx={pieSx}>
-            <Pie data={monthlyData} options={options} />
-          </Box>
-
-        </>
-      )}
-
-      {tab === 1 && (
-        <>
-          <Select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            sx={{ mb: 2 }}
-          >
-            {[...new Set(items.map((i) => new Date(i.date).getFullYear()))].map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}年
-              </MenuItem>
-            ))}
-          </Select>
-          <Box sx={pieSx}>
-            <Pie data={yearlyData} options={options} />
-          </Box>
-        </>
-      )}
+      {/* 選択された月の円グラフを表示 */}
+     <Box mt={2}>
+  {/* 月別支出がゼロかどうか判定 */}
+  {currentMonthData.data.every((d) => d.value === 0) ? (
+    <Typography>この月は支出がありません</Typography>
+  ) : (
+    <PieChart width={600} height={400}>
+      <Pie
+        data={currentMonthData.data}
+        cx={300}
+        cy={200}
+        labelLine={false}
+        label={(props) =>
+          `${props.name ?? ""} ${((props.percent ?? 0) * 100).toFixed(0)}%`
+        }
+        outerRadius={150}
+        fill="#8884d8"
+        dataKey="value"
+      >
+        {currentMonthData.data.map((_, index: number) => (
+          <Cell key={index} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip />
+      <Legend />
+    </PieChart>
+  )}
+</Box>
     </Box>
   );
 }
