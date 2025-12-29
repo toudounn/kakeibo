@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TextField, MenuItem, Box } from "@mui/material";
-import { getCardTypes, getPointTypes, saveCardTypes, savePointTypes } from "../../db/indexedDB";
+import { getCardTypes, getPointTypes} from "../../db/indexedDB";
 
 export default function PaymentForm({ payment, paymentType, onChange }: any) {
   // 支払方法の選択肢
@@ -16,14 +16,14 @@ export default function PaymentForm({ payment, paymentType, onChange }: any) {
       let points = await getPointTypes();
 
       // 初期値が空ならデフォルトを設定
-      if (cards.length === 0) {
-        cards = ["Visa", "MasterCard", "JCB"];
-        await saveCardTypes(cards);
-      }
-      if (points.length === 0) {
-        points = ["楽天ポイント", "Tポイント", "dポイント"];
-        await savePointTypes(points);
-      }
+      // if (cards.length === 0) {
+      //   cards = ["Visa", "MasterCard", "JCB"];
+      //   await saveCardTypes(cards);
+      // }
+      // if (points.length === 0) {
+      //   points = ["楽天ポイント", "Tポイント", "dポイント"];
+      //   await savePointTypes(points);
+      // }
 
       setCardTypes(cards);
       setPointTypes(points);

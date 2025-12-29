@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Table, TableHead, TableRow, TableCell, TableBody, Typography, Box } from "@mui/material";
 import { KakeiboItem } from "../../typs";
 import { tableSx, tableRowSx } from "../../pages/Category";
-import { getExpenses, getCardTypes, saveCardTypes } from "../../db/indexedDB";
+import { getExpenses, getCardTypes } from "../../db/indexedDB";
 
 export default function CardSummary() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
@@ -19,10 +19,10 @@ export default function CardSummary() {
         let cards: string[] = await getCardTypes();
 
         // 初期値が空ならデフォルトを設定
-        if (cards.length === 0) {
-          cards = ["Visa", "MasterCard", "JCB"];
-          await saveCardTypes(cards);
-        }
+        // if (cards.length === 0) {
+        //   cards = ["Visa", "MasterCard", "JCB"];
+        //   await saveCardTypes(cards);
+        // }
 
         setCardTypes(cards);
       } catch (e) {
