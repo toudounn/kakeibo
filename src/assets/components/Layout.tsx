@@ -21,9 +21,6 @@ export default function Layout() {
           <Button color="inherit" component={Link} to="/simulation">
             シュミレーション
           </Button>
-          <Button color="inherit" component={Link} to="/graph">
-            グラフ
-          </Button>
         </Toolbar>
       </AppBar>
       <Outlet />
