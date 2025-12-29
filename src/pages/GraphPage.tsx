@@ -131,32 +131,32 @@ console.log("monthlyPieData", monthlyPieData);
 
       {/* 選択された月の円グラフを表示 */}
      <Box mt={2}>
-  {/* 月別支出がゼロかどうか判定 */}
-  {currentMonthData.data.every((d) => d.value === 0) ? (
-    <Typography>この月は支出がありません</Typography>
-  ) : (
-    <PieChart width={600} height={400}>
-      <Pie
-        data={currentMonthData.data}
-        cx={300}
-        cy={200}
-        labelLine={false}
-        label={(props) =>
-          `${props.name ?? ""} ${((props.percent ?? 0) * 100).toFixed(0)}%`
-        }
-        outerRadius={150}
-        fill="#8884d8"
-        dataKey="value"
-      >
-        {currentMonthData.data.map((_, index: number) => (
-          <Cell key={index} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-      <Legend />
-    </PieChart>
-  )}
-</Box>
+        {/* 月別支出がゼロかどうか判定 */}
+        {currentMonthData.data.every((d) => d.value === 0) ? (
+          <Typography>この月は支出がありません</Typography>
+        ) : (
+          <PieChart width={600} height={400}>
+            <Pie
+              data={currentMonthData.data}
+              cx={300}
+              cy={200}
+              labelLine={false}
+              label={(props) =>
+                `${props.name ?? ""} ${((props.percent ?? 0) * 100).toFixed(0)}%`
+              }
+              outerRadius={150}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {currentMonthData.data.map((_, index: number) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        )}
+      </Box>
     </Box>
   );
 }
