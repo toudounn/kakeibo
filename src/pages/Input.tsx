@@ -63,7 +63,7 @@ export default function Input() {
       livingItems.length === 0;
 
     if (noCategories) {
-      setOpen(true);
+      setSettingOpen(true);
     }
   }, [loaded, incomeItems, expenditureItems, livingItems]);
 
