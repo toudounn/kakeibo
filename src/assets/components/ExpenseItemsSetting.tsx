@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { btnSx } from "./Settings";
+  import { toRomaji } from "wanakana";
 
 type ExpenseItem = {
   Headers: string;
@@ -26,6 +27,15 @@ export default function ExpenseItemsSetting() {
   const [livingItems, setLivingItems] = useState<ExpenseItem[]>([]);
 
   const [newItem, setNewItem] = useState<ExpenseItem>({ Headers: "", accessor: "" });
+
+
+const generateAccessor = (label: string) => {
+  return toRomaji(label)
+    .toLowerCase()
+    .replace(/\s+/g, "_")      // 空白 → _
+    .replace(/[^a-z0-9_]/g, ""); // 記号削除
+};
+
 
   // 初期ロード時に localStorage から読み込み
   useEffect(() => {
@@ -89,15 +99,17 @@ export default function ExpenseItemsSetting() {
       {/* 入力フォーム */}
       <Stack direction="row" spacing={2} m={2}  justifyItems="center">
         <TextField
-          label="表示名"
-          value={newItem.Headers}
-          onChange={(e) => setNewItem({ ...newItem, Headers: e.target.value })}
-        />
-        <TextField
-          label="キー名"
-          value={newItem.accessor}
-          onChange={(e) => setNewItem({ ...newItem, accessor: e.target.value })}
-        />
+  label="表示名"
+  value={newItem.Headers}
+  onChange={(e) => {
+    const value = e.target.value;
+    setNewItem({
+      Headers: value,
+      accessor: generateAccessor(value), // ← 自動生成
+    });
+  }}
+/>
+
         <Button variant="contained" onClick={handleAdd} sx={btnSx}>
           追加
         </Button>

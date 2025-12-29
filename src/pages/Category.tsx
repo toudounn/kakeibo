@@ -9,11 +9,6 @@ import {
   Button,
 } from "@mui/material";
 import { useEffect, useState,useRef } from "react";
-import {
-  incomeExpenseItems,
-  expenditureExpenseItems,
-  livingExpensesItems,
-} from "../assets/util"; 
 import { getExpenses } from "../db/indexedDB";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -54,6 +49,20 @@ export const tableSx = {
 
 export default function Category() {
   const [items, setItems] = useState<KakeiboItem[]>([]);
+  const [incomeItems, setIncomeItems] = useState<any[]>([]);
+const [expenditureItems, setExpenditureItems] = useState<any[]>([]);
+const [livingItems, setLivingItems] = useState<any[]>([]);
+
+useEffect(() => {
+  const savedIncome = localStorage.getItem("incomeItems");
+  const savedExpenditure = localStorage.getItem("expenditureItems");
+  const savedLiving = localStorage.getItem("livingItems");
+
+  if (savedIncome) setIncomeItems(JSON.parse(savedIncome));
+  if (savedExpenditure) setExpenditureItems(JSON.parse(savedExpenditure));
+  if (savedLiving) setLivingItems(JSON.parse(savedLiving));
+}, []);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,9 +97,10 @@ export default function Category() {
       return { Headers: s.Headers, monthly, sum };
     });
 
-  const incomeRows = makeRows(incomeExpenseItems);
-  const expenditureRows = makeRows(expenditureExpenseItems);
-  const livingRows = makeRows(livingExpensesItems);
+  const incomeRows = makeRows(incomeItems);
+const expenditureRows = makeRows(expenditureItems);
+const livingRows = makeRows(livingItems);
+
 
   // 各セクションの月別合計
   const sectionTotals = (
