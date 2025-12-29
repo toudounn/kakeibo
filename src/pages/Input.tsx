@@ -188,7 +188,7 @@ export default function Input() {
   return (
     <Box m={2}>
       <Dialog open={settingOpen} onClose={() => setSettingOpen(false)}>
-        <DialogTitle>お知らせ</DialogTitle>
+        <DialogTitle>初期設定</DialogTitle>
 
         <DialogContent>
           <Typography>
@@ -197,8 +197,8 @@ export default function Input() {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={()=> navigate(`/settings`)}>設定画面へ</Button>
-          <Button onClick={() => setSettingOpen(false)}>閉じる</Button>
+          <Button onClick={() => setSettingOpen(false)} variant="outlined">閉じる</Button>
+          <Button onClick={()=> navigate(`/settings`)} variant="contained">設定画面へ</Button>
         </DialogActions>
       </Dialog>
       <Box m={2}>
