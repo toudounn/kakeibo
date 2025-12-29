@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
 import CardSummary from "../assets/components/CardSummary";
 import PointSummary from "../assets/components/PointSummary";
+import GraphPage from "./GraphPage";
 
 export default function SummaryPage() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -16,11 +17,13 @@ export default function SummaryPage() {
       <Tabs value={tabIndex} onChange={handleChange} centered>
         <Tab label="カード払い合計" />
         <Tab label="ポイント払い合計" />
+        <Tab label="グラフ"/>
       </Tabs>
 
       <Box sx={{ mt: 3  }}>
         {tabIndex === 0 && <CardSummary />}
         {tabIndex === 1 && <PointSummary />}
+        {tabIndex === 2 && <GraphPage />}
       </Box>
     </Box>
   );

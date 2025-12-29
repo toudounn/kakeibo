@@ -4,7 +4,8 @@ import {
   Button, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Select, MenuItem, FormControl, InputLabel,
   Box,
-  Stack
+  Stack,
+  Typography
 } from "@mui/material";
 import { KakeiboItem } from "../typs";
 import { tableSx, tableRowSx as tableRowSx } from "./Category";
@@ -13,6 +14,7 @@ import {
 } from "../assets/util";
 import PaymentForm from "../assets/components/PaymentForm";
 import { addExpense, deleteExpense, getExpenses, updateExpense } from "../db/indexedDB";
+import { useNavigate } from "react-router-dom";
 
 export default function Input() {
   const [open, setOpen] = useState(false);
@@ -34,6 +36,40 @@ export default function Input() {
   const [incomeItems, setIncomeItems] = useState<any[]>([]);
   const [expenditureItems, setExpenditureItems] = useState<any[]>([]);
   const [livingItems, setLivingItems] = useState<any[]>([]); // 初期読み込み
+
+  const [settingOpen, setSettingOpen] = useState(false);
+
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    // localStorage から読み込み
+    const income = JSON.parse(localStorage.getItem("incomeItems") ?? "[]");
+    const exp = JSON.parse(localStorage.getItem("expenditureItems") ?? "[]");
+    const living = JSON.parse(localStorage.getItem("livingItems") ?? "[]");
+
+    setIncomeItems(income);
+    setExpenditureItems(exp);
+    setLivingItems(living);
+
+    setLoaded(true); // ← 読み込み完了
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return; // ← 読み込み前は判定しない
+
+    const noCategories =
+      incomeItems.length === 0 &&
+      expenditureItems.length === 0 &&
+      livingItems.length === 0;
+
+    if (noCategories) {
+      setOpen(true);
+    }
+  }, [loaded, incomeItems, expenditureItems, livingItems]);
+
+
+
+  const navigate = useNavigate();
 
   // 初期読み込み
   useEffect(() => {
@@ -151,6 +187,20 @@ export default function Input() {
 
   return (
     <Box m={2}>
+      <Dialog open={settingOpen} onClose={() => setSettingOpen(false)}>
+        <DialogTitle>お知らせ</DialogTitle>
+
+        <DialogContent>
+          <Typography>
+            設定で費目を登録してください
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={()=> navigate(`/settings`)}>設定画面へ</Button>
+          <Button onClick={() => setSettingOpen(false)}>閉じる</Button>
+        </DialogActions>
+      </Dialog>
       <Box m={2}>
       <Button variant="contained" onClick={() => {
         setSelectedRow(null);
