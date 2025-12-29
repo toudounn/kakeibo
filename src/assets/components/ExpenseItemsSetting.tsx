@@ -121,7 +121,7 @@ const generateAccessor = (label: string) => {
           {currentItems.map((item, i) => (
             <TableRow key={i}>
               <TableCell>{item.Headers}</TableCell>
-              <TableCell>{item.accessor}</TableCell>
+              {/* <TableCell>{item.accessor}</TableCell> */}
               <TableCell>
                 <Button color="error" onClick={() => handleDelete(i)} sx={btnSx}>
                   削除
