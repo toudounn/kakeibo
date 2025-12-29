@@ -8,7 +8,9 @@ import {
 } from "@mui/material";
 import { KakeiboItem } from "../typs";
 import { tableSx, tableRowSx as tableRowSx } from "./Category";
-import { expenditureExpenseItems, headers, incomeExpenseItems, livingExpensesItems } from "../assets/util";
+import { 
+  headers,
+} from "../assets/util";
 import PaymentForm from "../assets/components/PaymentForm";
 import { addExpense, deleteExpense, getExpenses, updateExpense } from "../db/indexedDB";
 
@@ -29,6 +31,9 @@ export default function Input() {
   const [amount, setAmount] = useState(0);
   const [payment, setPayment] = useState("");
   const [paymentType, setPaymentType] = useState("");
+  const [incomeItems, setIncomeItems] = useState<any[]>([]);
+  const [expenditureItems, setExpenditureItems] = useState<any[]>([]);
+  const [livingItems, setLivingItems] = useState<any[]>([]); // 初期読み込み
 
   // 初期読み込み
   useEffect(() => {
@@ -36,122 +41,113 @@ export default function Input() {
   }, []);
 
   useEffect(() => {
-  const today = new Date();
-  const m = today.getMonth() + 1; // 月（0始まりなので+1）
-  const d = today.getDate();      // 日
+    const today = new Date();
+    const m = today.getMonth() + 1; // 月（0始まりなので+1）
+    const d = today.getDate();      // 日
 
-  setMonth(m);
-  setDate(`${m}/${d}`); // 例: "3/15"
-}, []);
+    setMonth(m);
+    setDate(`${m}/${d}`); // 例: "3/15"
+  }, []);
 
-
-  const handleRowClick = (row: KakeiboItem) => {
-    setSelectedRow(row);
-    setCategory(row.category);
-    setName(row.name);
-    setDate(row.date);
-    setMonth(row.month);
-    setAmount(row.amount);
-    setPayment(row.payment || "");
-    setOpen(true);
+  const handleDeleteClick = () => {
+    setConfirmOpen(true);
   };
 
-  const handleSave = async () => {
-    const newItem: KakeiboItem = {
-      id: selectedRow ? selectedRow.id : Date.now(),
-      date,
-      month,
-      category,
-      name,
-      amount: Number(amount),
-      payment,
-      paymentType,
-    };
+  // 確認ダイアログで「はい」を押したとき → 実際に削除
+  const handleDeleteConfirm = async () => {
+    if (!selectedRow) return;
 
-    if (selectedRow) {
-      // 編集更新
-      await updateExpense(newItem);
-    } else {
-      // 新規追加
-      await addExpense(newItem);
-    }
+    await deleteExpense(selectedRow.id);
+      const updated = await getExpenses();
+      setItems(updated);
 
-    const updated = await getExpenses();
-    setItems(updated);
-
+    setConfirmOpen(false);
     setOpen(false);
     setSelectedRow(null);
     setName("");
     setAmount(0);
     setPayment("");
-    setPaymentType("");
     setDate("");
   };
 
-  const getItemsByCategory = (
-  category: "収入" | "支出" | "生活費"
-): any[] => {
-  switch (category) {
-    case "収入":
-      return incomeExpenseItems;
-    case "支出":
-      return expenditureExpenseItems;
-    case "生活費":
-      return livingExpensesItems;
-    default:
-      return [];
-  }
-};
-
-const handleDeleteClick = () => {
-  setConfirmOpen(true);
-};
-
-// 確認ダイアログで「はい」を押したとき → 実際に削除
-const handleDeleteConfirm = async () => {
-  if (!selectedRow) return;
-
-  await deleteExpense(selectedRow.id);
-    const updated = await getExpenses();
-    setItems(updated);
-
-  setConfirmOpen(false);
-  setOpen(false);
-  setSelectedRow(null);
-  setName("");
-  setAmount(0);
-  setPayment("");
-  setDate("");
-};
-
-// 確認ダイアログで「キャンセル」を押したとき
-const handleDeleteCancel = () => {
-  setConfirmOpen(false);
-};
-
-// 並べ替え処理
-const sortedRows = [...items].sort((a, b) => {
-  const dateA = new Date(a.date).getTime();
-  const dateB = new Date(b.date).getTime();
-  return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-});
-
-// 並べ替え後に累積合計を計算しながら表示用データを作成
-let runningTotal = 0;
-const rowsWithTotal = sortedRows.map((row) => {
-  const expenditure =
-    row.category === "支出" || row.category === "生活費" ? row.amount : 0;
-  const income = row.category === "収入" ? row.amount : 0;
-
-  runningTotal += income - expenditure;
-
-  return {
-    ...row,
-    expenditure,
-    income,
-    cumulativeTotal: runningTotal,
+  // 確認ダイアログで「キャンセル」を押したとき
+  const handleDeleteCancel = () => {
+    setConfirmOpen(false);
   };
-});
+
+  // 並べ替え処理
+  const sortedRows = [...items].sort((a, b) => {
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
+
+  // 並べ替え後に累積合計を計算しながら表示用データを作成
+  let runningTotal = 0;
+  const rowsWithTotal = sortedRows.map((row) => {
+    const expenditure =
+      row.category === "支出" || row.category === "生活費" ? row.amount : 0;
+    const income = row.category === "収入" ? row.amount : 0;
+
+    runningTotal += income - expenditure;
+
+    return {
+      ...row,
+      expenditure,
+      income,
+      cumulativeTotal: runningTotal,
+    };
+  });
+
+  useEffect(() => { getExpenses().then(setItems); // ★ 追加：localStorage から項目を読み込む　
+    const savedIncome = localStorage.getItem("incomeItems");
+    const savedExpenditure = localStorage.getItem("expenditureItems");
+    const savedLiving = localStorage.getItem("livingItems");
+
+    if (savedIncome) setIncomeItems(JSON.parse(savedIncome));
+    if (savedExpenditure) setExpenditureItems(JSON.parse(savedExpenditure));
+    if (savedLiving) setLivingItems(JSON.parse(savedLiving));
+  }, []);
+
+  useEffect(() => {
+    const today = new Date(); const m = today.getMonth() + 1;
+    const d = today.getDate(); setMonth(m); setDate(`${m}/${d}`);
+  }, []);
+
+  const handleRowClick = (row: KakeiboItem) => {
+    setSelectedRow(row);
+    setCategory(row.category); setName(row.name); setDate(row.date);
+    setMonth(row.month); setAmount(row.amount); setPayment(row.payment || "");
+    setOpen(true);
+  };
+  
+  const handleSave = async () => {
+    const newItem: KakeiboItem = {
+      id: selectedRow ? 
+        selectedRow.id :
+        Date.now(), date, month, category, name, // ← 表示名をそのまま保存 
+        amount: Number(amount), payment, paymentType,
+      };
+      if (selectedRow) {
+        await updateExpense(newItem);
+      } else {
+        await addExpense(newItem);
+      }
+    const updated = await getExpenses();
+      setItems(updated); setOpen(false);
+      setSelectedRow(null); setName("");
+      setAmount(0); setPayment("");
+      setPaymentType(""); setDate("");
+    }; // ★ 修正：localStorage の値を返す
+    
+  const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
+    switch (category) {
+      case "収入": return incomeItems;
+      case "支出": return expenditureItems;
+      case "生活費": return livingItems;
+      default: return [];
+    }
+  };
 
   return (
     <Box m={2}>
