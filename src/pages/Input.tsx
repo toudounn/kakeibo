@@ -26,7 +26,7 @@ export default function Input() {
  // 削除確認ダイアログ用
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const [category, setCategory] = useState<"収入" | "支出" | "生活費">("収入");
+  const [category, setCategory] = useState<"収入" | "固定費" | "生活費">("収入");
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [month, setMonth] = useState<number>(1);
@@ -122,7 +122,7 @@ export default function Input() {
   let runningTotal = 0;
   const rowsWithTotal = sortedRows.map((row) => {
     const expenditure =
-      row.category === "支出" || row.category === "生活費" ? row.amount : 0;
+      row.category === "固定費" || row.category === "生活費" ? row.amount : 0;
     const income = row.category === "収入" ? row.amount : 0;
 
     runningTotal += income - expenditure;
@@ -176,10 +176,10 @@ export default function Input() {
       setPaymentType(""); setDate("");
     }; // ★ 修正：localStorage の値を返す
     
-  const getItemsByCategory = (category: "収入" | "支出" | "生活費") => {
+  const getItemsByCategory = (category: "収入" | "固定費" | "生活費") => {
     switch (category) {
       case "収入": return incomeItems;
-      case "支出": return expenditureItems;
+      case "固定費": return expenditureItems;
       case "生活費": return livingItems;
       default: return [];
     }
@@ -265,11 +265,11 @@ export default function Input() {
             <Select
               value={category}
               onChange={(e) =>
-                setCategory(e.target.value as "収入" | "支出" | "生活費")
+                setCategory(e.target.value as "収入" | "固定費" | "生活費")
               }
             >
               <MenuItem value="収入">収入</MenuItem>
-              <MenuItem value="支出">支出</MenuItem>
+              <MenuItem value="固定費">固定費</MenuItem>
               <MenuItem value="生活費">生活費</MenuItem>
             </Select>
           </FormControl>
@@ -340,7 +340,7 @@ export default function Input() {
           {selectedRow ? `${selectedRow.name} を本当に削除しますか？` : "本当に削除しますか？"}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteCancel}>キャンセル</Button>
+          <Button onClick={handleDeleteCancel} variant="outlined">キャンセル</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
             削除する
           </Button>

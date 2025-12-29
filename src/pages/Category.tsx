@@ -245,7 +245,7 @@ const livingRows = makeRows(livingItems);
       <Box ref={tableRef}>
         <Box  className="table-wrapper">
           {renderTable("収入", incomeRows, incomeTotal)}
-          {renderTable("支出", expenditureRows, expenditureTotal)}
+          {renderTable("固定費", expenditureRows, expenditureTotal)}
           {renderTable("生活費", livingRows, livingTotal)}
           <Typography variant="h6">
             残高
