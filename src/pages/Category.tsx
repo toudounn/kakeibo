@@ -7,6 +7,7 @@ import {
   TableCell,
   TableBody,
   Button,
+  SxProps,
 } from "@mui/material";
 import { useEffect, useState,useRef } from "react";
 import { getExpenses } from "../db/indexedDB";
@@ -33,18 +34,30 @@ export const tableRowSx = {
 export const tableSx = {
   border: "1px solid black",
   borderCollapse: "collapse",
-  tableLayout: "fixed",
+  tableLayout: "auto",
   width: "100%",
   "& td, & th": {
     border: "1px solid black",
-    padding: "0px 4px",
+    padding: "0px 2px",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    minWidth: "60px",
   },
   "& tr": {
     height: "20px",
   },
+};
+
+export const messageSx :SxProps ={
+          px: 1,
+          my: 1,
+          backgroundColor: "#fff3cd",
+          border: "1px solid #ffeeba",
+          borderRadius: 2,
+          color: "#856404",
+          fontWeight: "bold",
+          textAlign: "center",
 };
 
 export default function Category() {
@@ -212,44 +225,55 @@ const livingRows = makeRows(livingItems);
   const handleExportPDF = async () => {
   if (!tableRef.current) return;
 
+  // ★ 元の幅を保存
+  const originalWidth = tableRef.current.style.width;
+
+  // ★ PDF 用に一時的に幅を広げる（A4 横向き相当）
+  tableRef.current.style.width = "1200px";
+
+  // ★ 少し待ってレイアウトを反映
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
   const pdf = new jsPDF("landscape", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
 
-  // Title (left)
-  pdf.setFontSize(18);
-  pdf.text("kakeibo", 10, 15);
+  const canvas = await html2canvas(tableRef.current, {
+    scale: 2, // ← 高解像度でキャプチャ
+  });
 
-  // Date (right)
-  pdf.setFontSize(12);
-  const dateText = `since: ${new Date().toLocaleDateString()}`;
-  pdf.text(dateText, pageWidth - 10, 15, { align: "right" });
-
-  const canvas = await html2canvas(tableRef.current);
   const imgData = canvas.toDataURL("image/png");
-
   const imgProps = pdf.getImageProperties(imgData);
   const pdfWidth = pageWidth - 20;
   const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-  pdf.addImage(imgData, "PNG", 10, 22, pdfWidth, pdfHeight);
+  pdf.addImage(imgData, "PNG", 10, 10, pdfWidth, pdfHeight);
 
   pdf.save("CategorySummary.pdf");
+
+  // ★ 幅を元に戻す
+  tableRef.current.style.width = originalWidth;
 };
 
 
   return (
     <Box m={2}>
-      <Button variant="contained" color="primary" onClick={handleExportPDF} >
+      <Box
+        sx={messageSx}
+      >
+        横向きにすると見やすくなります
+      </Box>
+      <Button variant="contained" color="primary" onClick={handleExportPDF}>
         PDFに保存
       </Button>
-      <Box ref={tableRef}>
-        <Box  className="table-wrapper">
+
+      <Box ref={tableRef} sx={{ width: "100%", overflowX: "visible" }}>
+        <Box className="table-wrapper">
           {renderTable("収入", incomeRows, incomeTotal)}
           {renderTable("固定費", expenditureRows, expenditureTotal)}
           {renderTable("生活費", livingRows, livingTotal)}
-          <Typography variant="h6">
-            残高
-          </Typography>
+
+          <Typography variant="h6">残高</Typography>
+
           <Table sx={tableSx}>
             <TableHead>
               <TableRow sx={tableRowSx}>
@@ -261,6 +285,7 @@ const livingRows = makeRows(livingItems);
                 <TableCell>平均</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               <TableRow sx={totalLineSx}>
                 <TableCell>収入-支出</TableCell>
@@ -268,7 +293,9 @@ const livingRows = makeRows(livingItems);
                   <TableCell key={i}>{val}</TableCell>
                 ))}
                 <TableCell>{balanceSum}</TableCell>
-                <TableCell>{Math.round(balanceSum / balanceMonthly.length)}</TableCell>
+                <TableCell>
+                  {Math.round(balanceSum / balanceMonthly.length)}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>

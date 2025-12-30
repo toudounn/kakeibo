@@ -5,7 +5,7 @@
 
 table {
   border-collapse: collapse;
-  min-width: 600px;   /* 表を画面幅より広くする */
+  min-width: 800px;   /* 表を画面幅より広くする */
 }
 
 th, td {
@@ -14,4 +14,35 @@ th, td {
   white-space: nowrap; /* 折り返し防止で横に伸ばす */
 }
 
+@media print {
+  /* スマホ幅の制限を解除 */
+  body {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 横スクロールを無効化して全体を表示 */
+  .table-wrapper {
+    overflow-x: visible !important;
+    width: 100% !important;
+  }
+
+  /* テーブルを PDF 幅に合わせて縮める */
+  table {
+    width: 100% !important;
+    min-width: auto !important;   /* ← スマホ用 minWidth を無効化 */
+    table-layout: auto !important;
+  }
+
+  th, td {
+    min-width: auto !important;   /* ← セル幅を縮められるようにする */
+    white-space: normal !important; /* ← 折り返しを許可 */
+  }
+
+  /* PDF を横向きにしたい場合（任意） */
+  @page {
+    size: A4 landscape;
+  }
+}
 

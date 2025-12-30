@@ -213,7 +213,7 @@ export default function Input() {
         <TableHead>
           <TableRow sx={tableRowSx}>
             {headers
-              .filter((h) => h.Headers !== "平均")
+              .filter((h) => h.Headers !== "平均" && h.Headers !== "カテゴリ")
               .map((h) => (
                 <TableCell key={h.accessor} sx={{ verticalAlign: "middle" }} >
                   {h.Headers === "年月日" ? (
@@ -244,7 +244,6 @@ export default function Input() {
             >
               {/* <TableCell>{row.date}</TableCell> */}
               <TableCell>{new Date(row.date).getMonth() + 1}/{new Date(row.date).getDate()}</TableCell>
-              <TableCell>{row.category}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.expenditure}</TableCell>
               <TableCell>{row.income}</TableCell>

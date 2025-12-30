@@ -10,11 +10,25 @@ table[class*="Mui"]{
 }
 
 /* 横向きのときだけ適用 */
-@media (orientation: landscape) {
+/* @media (orientation: landscape) {
   .table-container {
     width: 100%;
     display: flex;
     flex-direction: row;
   }
+} */
+
+/* スマホ用のCSSはメディアクエリの外に記述する */
+.widthSize {
+  max-width: 375px;
+  width: 100%;
 }
 
+@media screen and (min-width: 481px) {
+	/* 481px以上に適用されるCSS（タブレット用） */
+  .widthSize {max-width: 481px;}
+}
+@media screen and (min-width: 960px) {
+	/* 960px以上に適用されるCSS（PC用） */
+  .widthSize {max-width: 960px;}
+}

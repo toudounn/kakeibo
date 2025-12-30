@@ -4,6 +4,7 @@ import { Box, Tabs, Tab } from "@mui/material";
 import CardSummary from "../assets/components/CardSummary";
 import PointSummary from "../assets/components/PointSummary";
 import GraphPage from "./GraphPage";
+import { messageSx } from "./Category";
 
 export default function SummaryPage() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -13,8 +14,8 @@ export default function SummaryPage() {
   };
 
   return (
-    <Box sx={{ width: "70%", p: 2 , mx:"auto" }}>
-      <Tabs value={tabIndex} onChange={handleChange} centered>
+    <Box>
+      <Tabs value={tabIndex} onChange={handleChange}  variant="scrollable" scrollButtons="auto" >
         <Tab label="カード払い合計" />
         <Tab label="ポイント払い合計" />
         <Tab label="グラフ"/>
@@ -23,7 +24,15 @@ export default function SummaryPage() {
       <Box sx={{ mt: 3  }}>
         {tabIndex === 0 && <CardSummary />}
         {tabIndex === 1 && <PointSummary />}
-        {tabIndex === 2 && <GraphPage />}
+        {tabIndex === 2 && (
+          <>
+            <Box
+            sx={messageSx}
+            >
+              横向きにすると見やすくなります
+            </Box>
+            <GraphPage />
+          </> )}
       </Box>
     </Box>
   );

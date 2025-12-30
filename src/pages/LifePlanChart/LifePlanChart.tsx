@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { messageSx } from "../Category";
 
 type EventForm = {
   startingAge: number;
@@ -107,6 +108,11 @@ export default function LifePlanChart() {
 
   return (
     <Box>
+      <Box
+        sx={messageSx}
+      >
+        横向きで使ってください
+      </Box>
       {/* ★ 基準年齢入力欄 */}
       <Stack direction="row" spacing={2} m={2}>
         <TextField

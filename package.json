@@ -5,14 +5,15 @@
   "type": "module",
   "homepage": "https://toudounn.github.io/kakeibo",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "deploy": "gh-pages -d dist"
-},
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
+  },
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.18.0",
     "@mui/material": "^5.16.0",
     "chart.js": "^4.5.1",
     "jspdf-html2canvas": "^1.5.2",

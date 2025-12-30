@@ -135,16 +135,16 @@ const generateAccessor = (label: string) => {
   const currentItems = tab === 0 ? incomeItems : tab === 1 ? expenditureItems : livingItems;
 
   return (
-    <Box mt={2} justifyItems="center">
+    <Box mt={2} className="widthSize" sx={{ margin: "0 auto" }}>
   {/* タブ切り替え */}
-  <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-    <Tab label="収入項目" />
-    <Tab label="固定費項目" />
-    <Tab label="生活費項目" />
+  <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto" >
+    <Tab label="収入" />
+    <Tab label="固定費" />
+    <Tab label="生活費" />
     <Tab label="クレジット" />
     <Tab label="ポイント" />
   </Tabs>
-
+<Box justifyItems="center">
   {/* ▼ タブ 0〜2：項目登録 */}
   {tab <= 2 && (
     <>
@@ -271,6 +271,7 @@ const generateAccessor = (label: string) => {
       </Box>
     </Box>
   )}
+  </Box>
 </Box>
 
   );
